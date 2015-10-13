@@ -52,7 +52,7 @@ public class PooledTalendDataSource extends TalendDataSource {
 			if (debug) {
 				System.out.println("Get connection from pool: number active: " + ds.getNumActive());
 				System.out.println("Get connection from pool: number idle: " + ds.getNumIdle());
-			}		
+			}
 		} else if (this.dsOra != null) {
 			conn = this.dsOra.getConnection();
 			if (debug) {

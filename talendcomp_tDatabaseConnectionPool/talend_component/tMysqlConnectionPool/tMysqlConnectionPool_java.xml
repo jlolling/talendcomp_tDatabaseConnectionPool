@@ -2,7 +2,7 @@
 
 <COMPONENT>
 	<HEADER AUTHOR="cimt AG" COMPATIBILITY="ALL" PLATEFORM="ALL"
-		RELEASE_DATE="20150914A" STARTABLE="true" STATUS="PROD" VERSION="1.1"
+		RELEASE_DATE="20151005A" STARTABLE="true" STATUS="PROD" VERSION="1.3"
 		SERIAL="">
 		<SIGNATURE />
 	</HEADER>
@@ -10,7 +10,7 @@
 		<FAMILY>Databases/MySQL</FAMILY>
 	</FAMILIES>
 	<DOCUMENTATION>
-		<URL />
+		<URL/>
 	</DOCUMENTATION>
 	<CONNECTORS>
 		<CONNECTOR CTYPE="SUBJOB_OK" MAX_INPUT="1" />
@@ -239,10 +239,11 @@
 
 	<CODEGENERATION>
 		<IMPORTS>
-			<IMPORT NAME="de.cimt.talendcomp.connectionPool" MODULE="de.cimt.talendcomp.connectionPool-1.1-jar-with-dependencies.jar" REQUIRED="true"/>
+			<IMPORT NAME="de.cimt.talendcomp.connectionPool" MODULE="de.cimt.talendcomp.connectionPool-1.2-jar-with-dependencies.jar" REQUIRED="true"/>
 			<IMPORT NAME="Mysql_Driver5" MODULE="mysql-connector-java-5.1.30-bin.jar" REQUIRED_IF="true" />
 		</IMPORTS>
 	</CODEGENERATION>
 	<RETURNS>
+		<RETURN NAME="DATABASE" TYPE="id_String" AVAILABILITY="AFTER" />
 	</RETURNS>
 </COMPONENT>
