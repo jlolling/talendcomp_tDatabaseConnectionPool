@@ -53,47 +53,60 @@
   	}
   }
 <% } else if ("CREATE_POOL".equals(mode)) { %>
-
-  String connectionString_<%=cid%> = "jdbc:mysql://"+<%=host%>+":"+<%=port%>+"/"+<%=database%>; 
-  de.cimt.talendcomp.connectionpool.BasicConnectionPool connectionPool_<%=cid%> = new de.cimt.talendcomp.connectionpool.BasicConnectionPool(connectionString_<%=cid%>, <%=user%>, <%=password%>, "MySQL");
-  connectionPool_<%=cid%>.setDebug(<%=debug%>);
-  connectionPool_<%=cid%>.setAutoCommit(<%=autoCommit%>);
-  connectionPool_<%=cid%>.setNumConnectionsPerCheck(<%=num_connections_checked%>);
-  connectionPool_<%=cid%>.loadDriver("com.mysql.jdbc.Driver");
-  connectionPool_<%=cid%>.setTestOnBorrow(<%=test_on_borrow%>);
-  connectionPool_<%=cid%>.setValidationQuery(<%=validationSql%>);
-  connectionPool_<%=cid%>.setAdditionalProperties(<%=additional_param%>);
-  connectionPool_<%=cid%>.setTimeIdleConnectionIsChecked(<%=time_idle_connection_is_checked%>);
-  connectionPool_<%=cid%>.setTimeBetweenChecks(<%=time_between_checks%>);
+  de.cimt.talendcomp.connectionpool.BasicConnectionPool <%=cid%> = de.cimt.talendcomp.connectionpool.BasicConnectionPool.getInstance(<%=alias%>);
+  if (<%=cid%> == null) {
+  	System.out.println("Create new pool with alias: " + <%=alias%>);
+  	String additionalPropertiesQuery = <%=additional_param%>;
+  	if (additionalPropertiesQuery != null && additionalPropertiesQuery.trim().isEmpty() == false) {
+  		additionalPropertiesQuery = "?" + additionalPropertiesQuery;
+  	} else {
+  		additionalPropertiesQuery = "?rewriteBatchedStatements=true";
+  	}
+  	String connectionString_<%=cid%> = "jdbc:mysql://"+<%=host%>+":"+<%=port%>+"/"+<%=database%> + additionalPropertiesQuery;
+  	<%=cid%> = new de.cimt.talendcomp.connectionpool.BasicConnectionPool(connectionString_<%=cid%>, <%=user%>, <%=password%>, "MySQL");
+  	<%=cid%>.setDebug(<%=debug%>);
+  	<%=cid%>.setAutoCommit(<%=autoCommit%>);
+  	<%=cid%>.setNumConnectionsPerCheck(<%=num_connections_checked%>);
+  	<%=cid%>.loadDriver("com.mysql.jdbc.Driver");
+  	<%=cid%>.setTestOnBorrow(<%=test_on_borrow%>);
+  	<%=cid%>.setValidationQuery(<%=validationSql%>);
+  	<%=cid%>.setTimeIdleConnectionIsChecked(<%=time_idle_connection_is_checked%>);
+  	<%=cid%>.setTimeBetweenChecks(<%=time_between_checks%>);
   <% if (set_initial_size.equals("true")){ %>
-  connectionPool_<%=cid%>.setInitialSize(<%=initial_size%>);
+  	<%=cid%>.setInitialSize(<%=initial_size%>);
   <% } %>
   <% if (set_max_total.equals("true")){ %>
-  connectionPool_<%=cid%>.setMaxTotal(<%=max_total%>);
+  	<%=cid%>.setMaxTotal(<%=max_total%>);
   <% } %>
   <% if (set_max_wait_for_connection.equals("true")){ %>
-  connectionPool_<%=cid%>.setMaxWaitForConnection(<%=max_wait_for_connection%>);
+  	<%=cid%>.setMaxWaitForConnection(<%=max_wait_for_connection%>);
   <% } %>
   <% if (set_init_sql) { %>
-  connectionPool_<%=cid%>.setInitSQL(<%=init_sql%>);
+  	<%=cid%>.setInitSQL(<%=init_sql%>);
   <% } %>
-  try {
-	// establish the connections
-  	connectionPool_<%=cid%>.initializePool();
-  	// fill the data source map
+  	try {
+		// establish the connections
+  		<%=cid%>.initializePool();
+  	} catch (Exception e) {
+  		globalMap.put("<%=cid%>_ERROR_MESSAGE", e.getMessage());
+  		throw e;
+  	}
+  	de.cimt.talendcomp.connectionpool.BasicConnectionPool.putInstance(<%=alias%>, <%=cid%>);
+  } else { // if (<%=cid%> == null)
+  	System.out.println("Use existing pool with alias: " + <%=alias%>);
+  }
+	// fill the data source map
 	@SuppressWarnings("unchecked")
-  	java.util.Map<String, routines.system.TalendDataSource> dataSourceMap_<%=cid%> = (java.util.Map<String, routines.system.TalendDataSource>) globalMap.get(KEY_DB_DATASOURCES);
-  	if (dataSourceMap_<%=cid%> == null) {
- 		dataSourceMap_<%=cid%> = new java.util.HashMap<String, routines.system.TalendDataSource>();
+	java.util.Map<String, routines.system.TalendDataSource> dataSourceMap_<%=cid%> = (java.util.Map<String, routines.system.TalendDataSource>) globalMap.get(KEY_DB_DATASOURCES);
+	if (dataSourceMap_<%=cid%> == null) {
+		dataSourceMap_<%=cid%> = new java.util.HashMap<String, routines.system.TalendDataSource>();
+		globalMap.put(KEY_DB_DATASOURCES, dataSourceMap_<%=cid%>);
 	}
-	globalMap.put(KEY_DB_DATASOURCES, dataSourceMap_<%=cid%>);
 	de.cimt.talendcomp.connectionpool.BasicConnectionPool.setDsMap(dataSourceMap_<%=cid%>);
   	// add data source to the global list of data sources
-  	dataSourceMap_<%=cid%>.put(<%=alias%>, connectionPool_<%=cid%>.getDataSource());
+  	dataSourceMap_<%=cid%>.put(<%=alias%>, <%=cid%>.getDataSource());
   	// for internal usage e.g. to close the pool
-  	globalMap.put("<%=cid%>_pool",connectionPool_<%=cid%>);
-  } catch (Exception e) {
-  	globalMap.put("<%=cid%>_ERROR_MESSAGE", e.getMessage());
-  	throw e;
-  }
+  	globalMap.put("<%=cid%>_pool",<%=cid%>);
+  	globalMap.put("db_<%=cid%>", <%=database%>);
+  	globalMap.put("<%=cid%>_DATABASE", <%=database%>);
 <% } %>

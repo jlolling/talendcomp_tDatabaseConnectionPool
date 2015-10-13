@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -44,6 +45,7 @@ public class BasicConnectionPool {
 	private String connectionPropertiesStr = null;
 	private boolean debug = false;
 	private static Map<String, routines.system.TalendDataSource> dsMap = null;
+	private static Map<String, BasicConnectionPool> poolMap = new HashMap<String, BasicConnectionPool>();
 	private boolean autoCommit = false;
 	
 	/**
@@ -138,13 +140,18 @@ public class BasicConnectionPool {
 			this.ucpManager.createConnectionPool((UniversalConnectionPoolAdapter) this.dataSourceOra);
 			this.ucpManager.startConnectionPool(this.poolName);
 			// create our first connection to detect connection problems right here
-			Connection testConn = dataSourceOra.getConnection();
-			if (testConn == null) {
-				throw new Exception("No initial data source available");
-			} else if (debug) {
-				System.out.println("Initial check connection from pool: number borrowed: " + dataSourceOra.getBorrowedConnectionsCount());
-				System.out.println("Initial check connection from pool: number available: " + dataSourceOra.getAvailableConnectionsCount());
-				testConn.close();
+			try {
+				Connection testConn = dataSourceOra.getConnection();
+				if (testConn == null) {
+					throw new Exception("No initial data source available");
+				} else if (debug) {
+					System.out.println("Initial check connection from pool: number borrowed: " + dataSourceOra.getBorrowedConnectionsCount());
+					System.out.println("Initial check connection from pool: number available: " + dataSourceOra.getAvailableConnectionsCount());
+					testConn.close();
+				}
+			} catch (Exception e) {
+				String message = "Test pool failed. URL=" + this.connectionUrl + " USER=" + this.user + ". Error message=" + e.getMessage();
+				throw new Exception(message, e);
 			}
 		} else {
 			// use org.apache.commons.dbcp2.BasicDataSource
@@ -176,13 +183,18 @@ public class BasicConnectionPool {
 				this.dataSource.setConnectionProperties(connectionPropertiesStr.trim());
 			}
 			// create our first connection to detect connection problems right here
-			Connection testConn = dataSource.getConnection();
-			if (testConn == null) {
-				throw new Exception("No initial data source available");
-			} else if (debug) {
-				System.out.println("Initial check connection pool: number active: " + dataSource.getNumActive());
-				System.out.println("initial check connection pool: number idle: " + dataSource.getNumIdle());
-				testConn.close();
+			try {
+				Connection testConn = dataSource.getConnection();
+				if (testConn == null) {
+					throw new Exception("No initial data source available");
+				} else if (debug) {
+					System.out.println("Initial check connection pool: number active: " + dataSource.getNumActive());
+					System.out.println("initial check connection pool: number idle: " + dataSource.getNumIdle());
+					testConn.close();
+				}
+			} catch (Exception e) {
+				String message = "Test pool failed. URL=" + this.connectionUrl + " USER=" + this.user + ". Error message=" + e.getMessage();
+				throw new Exception(message, e);
 			}
 		}
 	}
@@ -430,6 +442,14 @@ public class BasicConnectionPool {
 
 	public static void setDsMap(Map<String, routines.system.TalendDataSource> dsMap) {
 		BasicConnectionPool.dsMap = dsMap;
+	}
+	
+	public static void putInstance(String alias, BasicConnectionPool pool) {
+		poolMap.put(alias, pool);
+	}
+	
+	public static BasicConnectionPool getInstance(String alias) {
+		return poolMap.get(alias);
 	}
 
 	public boolean isAutoCommit() {
