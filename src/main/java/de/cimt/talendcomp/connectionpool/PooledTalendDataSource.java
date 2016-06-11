@@ -8,11 +8,14 @@ import oracle.ucp.admin.UniversalConnectionPoolManager;
 import oracle.ucp.jdbc.PoolDataSource;
 
 import org.apache.commons.dbcp2.BasicDataSource;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 import routines.system.TalendDataSource;
 
 public class PooledTalendDataSource extends TalendDataSource {
 
+	private static Logger logger = null;
 	private BasicDataSource ds = null;
 	private PoolDataSource dsOra = null;
 	private UniversalConnectionPoolManager ucpManager = null;
@@ -50,14 +53,12 @@ public class PooledTalendDataSource extends TalendDataSource {
 		if (this.ds != null) {
 			conn = this.ds.getConnection();
 			if (debug) {
-				System.out.println("Get connection from pool: number active: " + ds.getNumActive());
-				System.out.println("Get connection from pool: number idle: " + ds.getNumIdle());
+				debug(Thread.currentThread().getName() + ": DEBUG: Get connection from pool: number active: " + ds.getNumActive() + ", number idle: " + ds.getNumIdle());
 			}
 		} else if (this.dsOra != null) {
 			conn = this.dsOra.getConnection();
 			if (debug) {
-				System.out.println("Get connection from pool: number borrowed: " + dsOra.getBorrowedConnectionsCount());
-				System.out.println("Get connection from pool: number available: " + dsOra.getAvailableConnectionsCount());
+				debug(Thread.currentThread().getName() + ": DEBUG: Get connection from pool: number borrowed: " + dsOra.getBorrowedConnectionsCount() + ", number available: " + dsOra.getAvailableConnectionsCount());
 			}		
 		} else {
 			throw new IllegalStateException("No data source available");
@@ -81,11 +82,68 @@ public class PooledTalendDataSource extends TalendDataSource {
 	}
 
 	public boolean isDebug() {
-		return debug;
+		if (logger != null) {
+			return logger.getLevel().equals(Level.DEBUG);
+		} else {
+			return debug;
+		}
 	}
 
 	public void setDebug(boolean debug) {
 		this.debug = debug;
+		if (logger != null) {
+			if (debug) {
+				logger.setLevel(Level.DEBUG);
+			} else {
+				logger.setLevel(Level.INFO);
+			}
+		}
+	}
+
+	public void info(String message) {
+		if (logger != null) {
+			logger.info(message);
+		} else {
+			System.out.println(Thread.currentThread().getName() + ": INFO: " + message);
+		}
 	}
 	
+	public void debug(String message) {
+		if (logger != null) {
+			logger.debug(message);
+		} else {
+			System.out.println(Thread.currentThread().getName() + ": DEBUG: " + message);
+		}
+	}
+
+	public void error(String message) {
+		error(message, null);
+	}
+	
+	public void error(String message, Throwable t) {
+		if (t != null && (message == null || message.trim().isEmpty())) {
+			message = t.getMessage();
+		}
+		if (logger != null) {
+			if (t != null) {
+				logger.error(message, t);
+			} else {
+				logger.error(message);
+			}
+		} else {
+			System.err.println(Thread.currentThread().getName() + ": ERROR: " + message);
+			if (t != null) {
+				t.printStackTrace(System.err);
+			}
+		}
+	}
+
+	public static Logger getLogger() {
+		return logger;
+	}
+
+	public static void setLogger(Logger logger) {
+		PooledTalendDataSource.logger = logger;
+	}
+
 }

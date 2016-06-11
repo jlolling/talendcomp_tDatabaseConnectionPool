@@ -16,11 +16,14 @@ import oracle.ucp.jdbc.PoolDataSource;
 import oracle.ucp.jdbc.PoolDataSourceFactory;
 
 import org.apache.commons.dbcp2.BasicDataSource;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 import routines.system.TalendDataSource;
 
 public class BasicConnectionPool {
 
+	private static Logger logger = null;
 	private String user;
 	private String pass;
 	private String databaseType = null;
@@ -43,7 +46,7 @@ public class BasicConnectionPool {
 	private String poolName = null;
 	private String validationQuery = null;
 	private String connectionPropertiesStr = null;
-	private boolean debug = false;
+	private static boolean debug = false;
 	private static Map<String, routines.system.TalendDataSource> dsMap = null;
 	private static Map<String, BasicConnectionPool> poolMap = new HashMap<String, BasicConnectionPool>();
 	private boolean autoCommit = false;
@@ -68,7 +71,7 @@ public class BasicConnectionPool {
 					"Password can not be null. At least empty String \"\" ");
 		} else if (databaseType == null || databaseType.trim().isEmpty()) {
 			throw new IllegalArgumentException(
-					"databaseType can not be null. Use 'MySQL', 'Oracle', 'DB2', 'Postgres' or 'SQLServer' \"\" ");
+					"databaseType can not be null. Use 'MySQL', 'Oracle', 'DB2', 'PostgreSQL' or 'SQLServer' \"\" ");
 		} else {
 			this.user = user;
 			this.pass = password;
@@ -82,7 +85,7 @@ public class BasicConnectionPool {
 	 * @throws SQLException
 	 */
 	public void loadDriver(String driver) throws Exception {
-		if (driver == null || driver.trim().isEmpty()){
+		if (driver == null || driver.trim().isEmpty()) {
 			throw new IllegalArgumentException("driver can not be null or empty");
 		}
 		try {
@@ -145,8 +148,7 @@ public class BasicConnectionPool {
 				if (testConn == null) {
 					throw new Exception("No initial data source available");
 				} else if (debug) {
-					System.out.println("Initial check connection from pool: number borrowed: " + dataSourceOra.getBorrowedConnectionsCount());
-					System.out.println("Initial check connection from pool: number available: " + dataSourceOra.getAvailableConnectionsCount());
+					debug("Initial check connection from pool: number borrowed: " + dataSourceOra.getBorrowedConnectionsCount() + " number available: " + dataSourceOra.getAvailableConnectionsCount());
 					testConn.close();
 				}
 			} catch (Exception e) {
@@ -180,7 +182,7 @@ public class BasicConnectionPool {
 			this.dataSource.setLogAbandoned(debug);
 			this.dataSource.setLogExpiredConnections(debug);
 			if (connectionPropertiesStr != null) {
-				this.dataSource.setConnectionProperties(connectionPropertiesStr.trim());
+				this.dataSource.setConnectionProperties(connectionPropertiesStr);
 			}
 			// create our first connection to detect connection problems right here
 			try {
@@ -188,14 +190,25 @@ public class BasicConnectionPool {
 				if (testConn == null) {
 					throw new Exception("No initial data source available");
 				} else if (debug) {
-					System.out.println("Initial check connection pool: number active: " + dataSource.getNumActive());
-					System.out.println("initial check connection pool: number idle: " + dataSource.getNumIdle());
+					debug("Initial check connection pool: number active: " + dataSource.getNumActive() + "number idle: " + dataSource.getNumIdle());
 					testConn.close();
 				}
 			} catch (Exception e) {
 				String message = "Test pool failed. URL=" + this.connectionUrl + " USER=" + this.user + ". Error message=" + e.getMessage();
 				throw new Exception(message, e);
 			}
+		}
+	}
+	
+	private String prepareConnectionProperties(String properties) {
+		if (properties != null) {
+			if (properties.startsWith("?")) {
+				properties = properties.substring(1);
+			}
+			properties = properties.replace("&", ";");
+			return properties;
+		} else {
+			return "";
 		}
 	}
 
@@ -218,6 +231,7 @@ public class BasicConnectionPool {
 				pooledTalendDateSource = new PooledTalendDataSource(dataSource);
 			}
 			pooledTalendDateSource.setDebug(debug);
+			PooledTalendDataSource.setLogger(logger);
 		}
 		return pooledTalendDateSource;
 	}
@@ -229,7 +243,9 @@ public class BasicConnectionPool {
 	 */
 	public void setAdditionalProperties(String propertiesStr) throws SQLException {
 		if (propertiesStr != null && propertiesStr.trim().isEmpty() == false) {
-			this.connectionPropertiesStr = propertiesStr;
+			this.connectionPropertiesStr = prepareConnectionProperties(propertiesStr.trim());
+		} else {
+			this.connectionPropertiesStr = null;
 		}
 	}
 	
@@ -428,12 +444,69 @@ public class BasicConnectionPool {
 		}
 	}
 
-	public boolean isDebug() {
-		return debug;
+	public static boolean isDebug() {
+		if (logger != null) {
+			return logger.getLevel().equals(Level.DEBUG);
+		} else {
+			return debug;
+		}
 	}
 
-	public void setDebug(boolean debug) {
-		this.debug = debug;
+	public static void setDebug(boolean debug) {
+		BasicConnectionPool.debug = debug;
+		if (logger != null) {
+			if (debug) {
+				logger.setLevel(Level.DEBUG);
+			} else {
+				logger.setLevel(Level.INFO);
+			}
+		}
+	}
+
+	public static void info(String message) {
+		if (logger != null) {
+			logger.info(message);
+		} else {
+			System.out.println(Thread.currentThread().getName() + ": INFO: " + message);
+		}
+	}
+	
+	public static void warn(String message) {
+		if (logger != null) {
+			logger.warn(message);
+		} else {
+			System.out.println(Thread.currentThread().getName() + ": WARN: " + message);
+		}
+	}
+
+	public static void debug(String message) {
+		if (logger != null) {
+			logger.debug(message);
+		} else {
+			System.out.println(Thread.currentThread().getName() + ": DEBUG: " + message);
+		}
+	}
+
+	public static void error(String message) {
+		error(message, null);
+	}
+	
+	public static void error(String message, Throwable t) {
+		if (t != null && (message == null || message.trim().isEmpty())) {
+			message = t.getMessage();
+		}
+		if (logger != null) {
+			if (t != null) {
+				logger.error(message, t);
+			} else {
+				logger.error(message);
+			}
+		} else {
+			System.err.println(Thread.currentThread().getName() + ": ERROR: " + message);
+			if (t != null) {
+				t.printStackTrace(System.err);
+			}
+		}
 	}
 
 	public static Map<String, routines.system.TalendDataSource> getDsMap() {
@@ -458,6 +531,10 @@ public class BasicConnectionPool {
 
 	public void setAutoCommit(boolean autoCommit) {
 		this.autoCommit = autoCommit;
+	}
+	
+	public static void setLogger(Logger logger) {
+		BasicConnectionPool.logger = logger;
 	}
 
 }

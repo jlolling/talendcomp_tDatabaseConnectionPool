@@ -43,7 +43,7 @@
   if (de.cimt.talendcomp.connectionpool.BasicConnectionPool.getDsMap() != null) {
 	  globalMap.put(KEY_DB_DATASOURCES, de.cimt.talendcomp.connectionpool.BasicConnectionPool.getDsMap());
   } else {
-  	  System.err.println("There is no configured database pool! Components will create their own connections!");
+  	  de.cimt.talendcomp.connectionpool.BasicConnectionPool.error("There is no configured database pool! Components will create their own un-pooled connections!");
   }
 <% } else if ("CLOSE_POOL".equals(mode)) { %>
   {
@@ -55,7 +55,7 @@
 <% } else if ("CREATE_POOL".equals(mode)) { %>
   de.cimt.talendcomp.connectionpool.BasicConnectionPool <%=cid%> = de.cimt.talendcomp.connectionpool.BasicConnectionPool.getInstance(<%=alias%>);
   if (<%=cid%> == null) {
-  	System.out.println("Create new pool with alias: " + <%=alias%>);
+  	de.cimt.talendcomp.connectionpool.BasicConnectionPool.info("Create new pool with alias: " + <%=alias%>);
   	String additionalPropertiesQuery = <%=additional_param%>;
   	if (additionalPropertiesQuery != null && additionalPropertiesQuery.trim().isEmpty() == false) {
   		additionalPropertiesQuery = "?" + additionalPropertiesQuery;
@@ -93,7 +93,7 @@
   	}
   	de.cimt.talendcomp.connectionpool.BasicConnectionPool.putInstance(<%=alias%>, <%=cid%>);
   } else { // if (<%=cid%> == null)
-  	System.out.println("Use existing pool with alias: " + <%=alias%>);
+  	de.cimt.talendcomp.connectionpool.BasicConnectionPool.debug("Use existing pool with alias: " + <%=alias%>);
   }
 	// fill the data source map
 	@SuppressWarnings("unchecked")

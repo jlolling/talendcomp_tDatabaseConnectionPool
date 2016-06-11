@@ -13,7 +13,7 @@
 		<SIGNATURE />
 	</HEADER>
 	<FAMILIES>
-		<FAMILY>Databases/MySQL</FAMILY>
+		<FAMILY>Databases/PostgreSQL</FAMILY>
 		<FAMILY>Databases/Pool</FAMILY>
 	</FAMILIES>
 	<DOCUMENTATION>
@@ -31,7 +31,7 @@
 			SHOW="true"
 			NUM_ROW="1"
 			SHOW_IF="MODE == 'CREATE'"
-			REPOSITORY_VALUE="DATABASE:MYSQL"
+			REPOSITORY_VALUE="DATABASE:POSTGRESQL"
 	    />
 
 		<PARAMETER NAME="MODE" FIELD="CLOSED_LIST" NUM_ROW="2">
@@ -45,74 +45,86 @@
 		<PARAMETER 
 			NAME="HOST" 
 			FIELD="TEXT" 
-			NUM_ROW="3" 
+			NUM_ROW="10" 
 			REQUIRED="true"
 			REPOSITORY_VALUE="SERVER_NAME"
-			SHOW_IF="MODE == 'CREATE'">
+			SHOW_IF="MODE == 'CREATE'"
+		>
 			<DEFAULT>"127.0.0.1"</DEFAULT>
 		</PARAMETER>
 		
 		<PARAMETER 
 			NAME="PORT" 
 			FIELD="TEXT" 
-			NUM_ROW="3" 
+			NUM_ROW="10" 
 			REQUIRED="true"
 			REPOSITORY_VALUE="PORT"
 			SHOW_IF="MODE == 'CREATE'">
-			<DEFAULT>"3306"</DEFAULT>
+			<DEFAULT>"5432"</DEFAULT>
 		</PARAMETER>
 		
 		<PARAMETER 
 			NAME="DATABASE" 
 			FIELD="TEXT" 
-			NUM_ROW="3"
+			NUM_ROW="15"
 			REQUIRED="true" 
 			REPOSITORY_VALUE="SID"
 			SHOW_IF="MODE == 'CREATE'">
 			<DEFAULT>"mysql"</DEFAULT>
 		</PARAMETER>
 		
+		<PARAMETER
+			NAME="SCHEMA_DB"
+			FIELD="TEXT"
+			NUM_ROW="15"
+			REQUIRED="true"
+			REPOSITORY_VALUE="SCHEMA"
+			SHOW_IF="MODE == 'CREATE'"
+		>
+			<DEFAULT>""</DEFAULT>
+		</PARAMETER>
+
 		<PARAMETER 
 			NAME="USER" 
 			FIELD="TEXT" 
-			NUM_ROW="4" 
+			NUM_ROW="20" 
 			REQUIRED="true"
 			REPOSITORY_VALUE="USERNAME"
 			SHOW_IF="MODE == 'CREATE'">
-			<DEFAULT>"root"</DEFAULT>
+			<DEFAULT>"postgres"</DEFAULT>
 		</PARAMETER>
 		
 		<PARAMETER 
 			NAME="PASS" 
 			FIELD="PASSWORD" 
-			NUM_ROW="4"
+			NUM_ROW="20"
 			REQUIRED="true" 
 			REPOSITORY_VALUE="PASSWORD"
 			SHOW_IF="MODE == 'CREATE'">
-			<DEFAULT>""</DEFAULT>
+			<DEFAULT>"postgres"</DEFAULT>
 		</PARAMETER>
 		
 		<PARAMETER 
 			NAME="ALIAS" 
 			FIELD="TEXT" 
-			NUM_ROW="5" 
+			NUM_ROW="50" 
 			REQUIRED="true"
 			SHOW_IF="MODE == 'CREATE'">
-			<DEFAULT>"MysqlConnectionPool"</DEFAULT>
+			<DEFAULT>"PostgresqlConnectionPool"</DEFAULT>
 		</PARAMETER>
 
 		<PARAMETER 
 			NAME="CONNECTION_POOL" 
 			FIELD="COMPONENT_LIST"
-			FILTER="tMysqlConnectionPool" 
-			NUM_ROW="10" 
+			FILTER="tPostgresqlConnectionPool" 
+			NUM_ROW="60" 
 			DYNAMIC_SETTINGS="true"
 			SHOW_IF="MODE == 'CLOSE'" />
 			
 		<PARAMETER
 			NAME="AUTO_COMMIT"
 			FIELD="CHECK"
-			NUM_ROW="20"
+			NUM_ROW="70"
 			SHOW_IF="MODE == 'CREATE'">
 			<DEFAULT>false</DEFAULT>
     	</PARAMETER>
@@ -123,16 +135,17 @@
 	
 		<PARAMETER 
 			NAME="ADDITIONAL_PARAM" 
-			FIELD="TEXT" NUM_ROW="1"
+			FIELD="TEXT" 
+			NUM_ROW="1"
 			REPOSITORY_VALUE="PROPERTIES_STRING"
 			SHOW_IF="MODE == 'CREATE'">
-			<DEFAULT>"noDatetimeStringSync=true;rewriteBatchedStatements=true"</DEFAULT>
+			<DEFAULT></DEFAULT>
 		</PARAMETER>
 		
 		<PARAMETER 
 			NAME="TEST_ON_BORROW" 
 			FIELD="CHECK" 
-			NUM_ROW="2"
+			NUM_ROW="20"
 			SHOW_IF="MODE == 'CREATE'">
 			<DEFAULT>true</DEFAULT>
 		</PARAMETER>
@@ -141,7 +154,7 @@
 			NAME="VALIDATION_SQL" 
 			FIELD="TEXT" 
 			REQUIRED="true"
-			NUM_ROW="3" 
+			NUM_ROW="30" 
 			SHOW_IF="MODE == 'CREATE'" 
 			GROUP="IDLE_TEST">
 			<DEFAULT>"select current_date"</DEFAULT>
@@ -151,7 +164,7 @@
 			NAME="TIME_BETWEEN_CHECKS" 
 			FIELD="TEXT" 
 			REQUIRED="false"
-			NUM_ROW="4" 
+			NUM_ROW="40" 
 			SHOW_IF="MODE == 'CREATE'" 
 			GROUP="IDLE_TEST">
 			<DEFAULT>60000</DEFAULT>
@@ -161,7 +174,7 @@
 			NAME="TIME_IDLE_CONNECTION_IS_CHECKED" 
 			FIELD="TEXT"
 			REQUIRED="false" 
-			NUM_ROW="4" 
+			NUM_ROW="40" 
 			SHOW_IF="MODE == 'CREATE'" 
 			GROUP="IDLE_TEST">
 			<DEFAULT>30000</DEFAULT>
@@ -171,7 +184,7 @@
 			NAME="NUM_CONNECTIONS_CHECKED" 
 			FIELD="TEXT"
 			REQUIRED="false" 
-			NUM_ROW="5" 
+			NUM_ROW="50" 
 			SHOW_IF="MODE == 'CREATE'" 
 			GROUP="IDLE_TEST">
 			<DEFAULT>5</DEFAULT>
@@ -180,14 +193,14 @@
 		<PARAMETER 
 			NAME="SET_INITIAL_SIZE" 
 			FIELD="CHECK" 
-			NUM_ROW="6"
+			NUM_ROW="60"
 			SHOW_IF="MODE == 'CREATE'" />
 			
 		<PARAMETER 
 			NAME="INITIAL_SIZE" 
 			FIELD="TEXT" 
 			REQUIRED="false"
-			NUM_ROW="6" 
+			NUM_ROW="60" 
 			SHOW_IF="(MODE == 'CREATE') and (SET_INITIAL_SIZE == 'true')">
 			<DEFAULT>5</DEFAULT>
 		</PARAMETER>
@@ -195,14 +208,14 @@
 		<PARAMETER 
 			NAME="SET_MAX_TOTAL" 
 			FIELD="CHECK" 
-			NUM_ROW="7"
+			NUM_ROW="70"
 			SHOW_IF="(MODE == 'CREATE')" />
 			
 		<PARAMETER 
 			NAME="MAX_TOTAL" 
 			FIELD="TEXT" 
 			REQUIRED="false"
-			NUM_ROW="7" 
+			NUM_ROW="70" 
 			SHOW_IF="(MODE == 'CREATE') and (SET_MAX_TOTAL == 'true')">
 			<DEFAULT>5</DEFAULT>
 		</PARAMETER>
@@ -210,14 +223,14 @@
 		<PARAMETER 
 			NAME="SET_MAX_WAIT_FOR_CONNECTION" 
 			FIELD="CHECK"
-			NUM_ROW="9" 
+			NUM_ROW="90" 
 			SHOW_IF="(MODE == 'CREATE')" />
 		
 		<PARAMETER 
 			NAME="MAX_WAIT_FOR_CONNECTION" 
 			FIELD="TEXT"
 			REQUIRED="false" 
-			NUM_ROW="9" 
+			NUM_ROW="90" 
 			SHOW_IF="(MODE == 'CREATE') and (SET_MAX_WAIT_FOR_CONNECTION == 'true')">
 			<DEFAULT>0</DEFAULT>
 		</PARAMETER>
@@ -225,13 +238,13 @@
 		<PARAMETER 
 			NAME="SET_INIT_SQL" 
 			FIELD="CHECK" 
-			NUM_ROW="10"
+			NUM_ROW="100"
 			SHOW_IF="MODE == 'CREATE'" />
 		
 		<PARAMETER 
 			NAME="INIT_SQL" 
 			FIELD="TEXT" 
-			NUM_ROW="10"
+			NUM_ROW="100"
 			SHOW_IF="(MODE == 'CREATE') and (SET_INIT_SQL == 'true')">
 			<DEFAULT></DEFAULT>
 		</PARAMETER>
@@ -239,7 +252,7 @@
 		<PARAMETER 
 			NAME="DEBUG" 
 			FIELD="CHECK" 
-			NUM_ROW="20"
+			NUM_ROW="200"
 			SHOW_IF="MODE == 'CREATE'" />
 
 	</ADVANCED_PARAMETERS>
@@ -247,7 +260,7 @@
 	<CODEGENERATION>
 		<IMPORTS>
 			<IMPORT NAME="de.cimt.talendcomp.connectionPool" MODULE="de.cimt.talendcomp.connectionPool-1.3-jar-with-dependencies.jar" REQUIRED="true"/>
-			<IMPORT NAME="Mysql_Driver5" MODULE="mysql-connector-java-5.1.30-bin.jar" REQUIRED_IF="true" />
+			<IMPORT NAME="Driver-Postgres9" MODULE="postgresql-9.4-1201.jdbc41.jar" MVN="mvn:org.talend.libraries/postgresql-9.4-1201.jdbc41/6.0.0"  UrlPath="platform:/plugin/org.talend.libraries.jdbc.postgresql/lib/postgresql-9.4-1201.jdbc41.jar" REQUIRED_IF="DB_VERSION =='V9_X'" />
 		</IMPORTS>
 	</CODEGENERATION>
 	<RETURNS>
