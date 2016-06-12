@@ -139,7 +139,7 @@
 			NUM_ROW="1"
 			REPOSITORY_VALUE="PROPERTIES_STRING"
 			SHOW_IF="MODE == 'CREATE'">
-			<DEFAULT></DEFAULT>
+			<DEFAULT>"application_name=" + jobName</DEFAULT>
 		</PARAMETER>
 		
 		<PARAMETER 
