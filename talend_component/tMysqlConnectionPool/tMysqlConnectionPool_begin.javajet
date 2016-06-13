@@ -43,7 +43,9 @@
   if (de.cimt.talendcomp.connectionpool.BasicConnectionPool.getDsMap() != null) {
 	  globalMap.put(KEY_DB_DATASOURCES, de.cimt.talendcomp.connectionpool.BasicConnectionPool.getDsMap());
   } else {
-  	  de.cimt.talendcomp.connectionpool.BasicConnectionPool.error("There is no configured database pool! Components will create their own un-pooled connections!");
+		// simply replace the TalendDataSource with PooledTalendDataSources
+		de.cimt.talendcomp.connectionpool.BasicConnectionPool.warn("No database pool from a connection pool component found. Guess we use the Talend injected datasources. Now fixing the missing pool feature...");
+		de.cimt.talendcomp.connectionpool.BasicConnectionPool.setupPooledDataSources(globalMap, KEY_DB_DATASOURCES);
   }
 <% } else if ("CLOSE_POOL".equals(mode)) { %>
   {

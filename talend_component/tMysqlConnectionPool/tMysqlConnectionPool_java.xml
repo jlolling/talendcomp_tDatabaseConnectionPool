@@ -133,6 +133,7 @@
 			NAME="TEST_ON_BORROW" 
 			FIELD="CHECK" 
 			NUM_ROW="2"
+			REQUIRED="true"
 			SHOW_IF="MODE == 'CREATE'">
 			<DEFAULT>true</DEFAULT>
 		</PARAMETER>
@@ -181,12 +182,13 @@
 			NAME="SET_INITIAL_SIZE" 
 			FIELD="CHECK" 
 			NUM_ROW="6"
+			REQUIRED="true"
 			SHOW_IF="MODE == 'CREATE'" />
 			
 		<PARAMETER 
 			NAME="INITIAL_SIZE" 
 			FIELD="TEXT" 
-			REQUIRED="false"
+			REQUIRED="true"
 			NUM_ROW="6" 
 			SHOW_IF="(MODE == 'CREATE') and (SET_INITIAL_SIZE == 'true')">
 			<DEFAULT>5</DEFAULT>
@@ -195,13 +197,14 @@
 		<PARAMETER 
 			NAME="SET_MAX_TOTAL" 
 			FIELD="CHECK" 
+			REQUIRED="true"
 			NUM_ROW="7"
 			SHOW_IF="(MODE == 'CREATE')" />
 			
 		<PARAMETER 
 			NAME="MAX_TOTAL" 
 			FIELD="TEXT" 
-			REQUIRED="false"
+			REQUIRED="true"
 			NUM_ROW="7" 
 			SHOW_IF="(MODE == 'CREATE') and (SET_MAX_TOTAL == 'true')">
 			<DEFAULT>5</DEFAULT>
@@ -211,12 +214,13 @@
 			NAME="SET_MAX_WAIT_FOR_CONNECTION" 
 			FIELD="CHECK"
 			NUM_ROW="9" 
+			REQUIRED="true"
 			SHOW_IF="(MODE == 'CREATE')" />
 		
 		<PARAMETER 
 			NAME="MAX_WAIT_FOR_CONNECTION" 
 			FIELD="TEXT"
-			REQUIRED="false" 
+			REQUIRED="true"
 			NUM_ROW="9" 
 			SHOW_IF="(MODE == 'CREATE') and (SET_MAX_WAIT_FOR_CONNECTION == 'true')">
 			<DEFAULT>0</DEFAULT>
@@ -226,12 +230,14 @@
 			NAME="SET_INIT_SQL" 
 			FIELD="CHECK" 
 			NUM_ROW="10"
+			REQUIRED="true"
 			SHOW_IF="MODE == 'CREATE'" />
 		
 		<PARAMETER 
 			NAME="INIT_SQL" 
 			FIELD="TEXT" 
 			NUM_ROW="10"
+			REQUIRED="true"
 			SHOW_IF="(MODE == 'CREATE') and (SET_INIT_SQL == 'true')">
 			<DEFAULT></DEFAULT>
 		</PARAMETER>

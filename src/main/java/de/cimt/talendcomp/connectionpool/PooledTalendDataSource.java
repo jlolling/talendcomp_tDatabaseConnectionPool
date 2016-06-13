@@ -18,6 +18,8 @@ package de.cimt.talendcomp.connectionpool;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import javax.sql.DataSource;
+
 import oracle.ucp.UniversalConnectionPoolException;
 import oracle.ucp.admin.UniversalConnectionPoolManager;
 import oracle.ucp.jdbc.PoolDataSource;
@@ -31,12 +33,11 @@ import routines.system.TalendDataSource;
 public class PooledTalendDataSource extends TalendDataSource {
 
 	private static Logger logger = null;
-	private BasicDataSource ds = null;
-	private PoolDataSource dsOra = null;
+	private DataSource ds = null;
 	private UniversalConnectionPoolManager ucpManager = null;
 	private boolean debug = false;
 	
-	public PooledTalendDataSource(BasicDataSource ds) {
+	public PooledTalendDataSource(DataSource ds) {
 		super(ds);
 		if (ds == null) {
 			throw new IllegalArgumentException("data source cannot be null");
@@ -52,7 +53,7 @@ public class PooledTalendDataSource extends TalendDataSource {
 		if (ucpManager == null) {
 			throw new IllegalArgumentException("ucpManager cannot be null");
 		}
-		this.dsOra = ds;
+		this.ds = ds;
 		this.ucpManager = ucpManager;
 	}
 	
@@ -68,13 +69,12 @@ public class PooledTalendDataSource extends TalendDataSource {
 		if (this.ds != null) {
 			conn = this.ds.getConnection();
 			if (debug) {
-				debug(Thread.currentThread().getName() + ": DEBUG: Get connection from pool: number active: " + ds.getNumActive() + ", number idle: " + ds.getNumIdle());
+				if (ds instanceof BasicDataSource) {
+					debug(Thread.currentThread().getName() + ": DEBUG: Get connection from pool: number active: " + ((BasicDataSource) ds).getNumActive() + ", number idle: " + ((BasicDataSource) ds).getNumIdle());
+				} else if (ds instanceof PoolDataSource) {
+					debug(Thread.currentThread().getName() + ": DEBUG: Get connection from pool: number borrowed: " + ((PoolDataSource) ds).getBorrowedConnectionsCount() + ", number available: " + ((PoolDataSource) ds).getAvailableConnectionsCount());
+				}
 			}
-		} else if (this.dsOra != null) {
-			conn = this.dsOra.getConnection();
-			if (debug) {
-				debug(Thread.currentThread().getName() + ": DEBUG: Get connection from pool: number borrowed: " + dsOra.getBorrowedConnectionsCount() + ", number available: " + dsOra.getAvailableConnectionsCount());
-			}		
 		} else {
 			throw new IllegalStateException("No data source available");
 		}
@@ -84,10 +84,12 @@ public class PooledTalendDataSource extends TalendDataSource {
 	@Override
 	public void close() throws SQLException {
 		if (ds != null) {
-			this.ds.close();
-		} else if (ucpManager != null && dsOra != null) {
+			if (ds instanceof BasicDataSource) {
+				((BasicDataSource) ds).close();
+			}
+		} else if (ucpManager != null) {
 			try {
-				ucpManager.stopConnectionPool(dsOra.getDataSourceName());
+				ucpManager.stopConnectionPool(((PoolDataSource) ds).getDataSourceName());
 			} catch (UniversalConnectionPoolException e) {
 				throw new SQLException(e.getMessage(), e);
 			}

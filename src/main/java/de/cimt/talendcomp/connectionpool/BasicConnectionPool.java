@@ -168,6 +168,7 @@ public class BasicConnectionPool {
 				}
 			} catch (Exception e) {
 				String message = "Test pool failed. URL=" + this.connectionUrl + " USER=" + this.user + ". Error message=" + e.getMessage();
+				error(message, e);
 				throw new Exception(message, e);
 			}
 		} else {
@@ -451,7 +452,7 @@ public class BasicConnectionPool {
 			try {
 				return dataSourceOra.getBorrowedConnectionsCount();
 			} catch (SQLException e) {
-				e.printStackTrace();
+				error(e.getMessage(), e);
 				return 0;
 			}
 		} else {
@@ -552,4 +553,19 @@ public class BasicConnectionPool {
 		BasicConnectionPool.logger = logger;
 	}
 
+	public static void setupPooledDataSources(Map<String, Object> globalMap, String dataSourceKey) {
+		@SuppressWarnings("unchecked")
+		Map<String, routines.system.TalendDataSource> map = (Map<String, routines.system.TalendDataSource>) globalMap.get(dataSourceKey);
+		Map<String, routines.system.TalendDataSource> newMap = new HashMap<String, TalendDataSource>();
+		for (Map.Entry<String, routines.system.TalendDataSource> entry : map.entrySet()) {
+			routines.system.TalendDataSource tds = entry.getValue();
+			if (tds.getRawDataSource() != null) {
+				PooledTalendDataSource pds = new PooledTalendDataSource(tds.getRawDataSource());
+				newMap.put(entry.getKey(), pds);
+			}
+		}
+		// finally set the new datasource map to the globalMap
+		globalMap.put(dataSourceKey, newMap);
+	}
+	
 }
