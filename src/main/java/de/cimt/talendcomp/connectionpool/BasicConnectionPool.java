@@ -557,7 +557,7 @@ public class BasicConnectionPool {
 		@SuppressWarnings("unchecked")
 		Map<String, routines.system.TalendDataSource> map = (Map<String, routines.system.TalendDataSource>) globalMap.get(dataSourceKey);
 		if (map == null) {
-			warn("DatabaseSource map not available. Using key: " + dataSourceKey);
+			warn("DatabaseSources not available. This is not a problem if this job does not run in a service.");
 		} else {
 			Map<String, routines.system.TalendDataSource> newMap = new HashMap<String, TalendDataSource>();
 			for (Map.Entry<String, routines.system.TalendDataSource> entry : map.entrySet()) {
