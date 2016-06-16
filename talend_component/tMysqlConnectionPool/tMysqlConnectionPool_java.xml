@@ -255,7 +255,7 @@
 
 	<CODEGENERATION>
 		<IMPORTS>
-			<IMPORT NAME="de.cimt.talendcomp.connectionPool" MODULE="de.cimt.talendcomp.connectionPool-1.4-jar-with-dependencies.jar" REQUIRED="true"/>
+			<IMPORT NAME="de.cimt.talendcomp.connectionPool" MODULE="de.cimt.talendcomp.connectionPool-1.5-jar-with-dependencies.jar" REQUIRED="true"/>
 			<IMPORT NAME="Mysql_Driver5" MODULE="mysql-connector-java-5.1.30-bin.jar" REQUIRED_IF="true" />
 		</IMPORTS>
 	</CODEGENERATION>
