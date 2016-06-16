@@ -55,7 +55,7 @@
 	{
   		de.cimt.talendcomp.connectionpool.BasicConnectionPool pool = (de.cimt.talendcomp.connectionpool.BasicConnectionPool) globalMap.get("<%=creationComponent%>_pool");
   		if (pool != null) {
-	  		pool.close();
+	  		pool.closePool(); // close the entire pool
   		}
 	}
 <% } else if ("CREATE_POOL".equals(mode)) { %>

@@ -81,9 +81,8 @@ public class PooledTalendDataSource extends TalendDataSource {
 		return conn;
 	}
 	
-	@Override
-	public void close() throws SQLException {
-		if (ds != null) {
+	public void closePool() throws SQLException {
+   		if (ds != null) {
 			if (ds instanceof BasicDataSource) {
 				((BasicDataSource) ds).close();
 			}
@@ -98,6 +97,11 @@ public class PooledTalendDataSource extends TalendDataSource {
 		}
 	}
 
+	@Override
+	public void close() {
+		// do nothing
+	}
+	
 	public boolean isDebug() {
 		if (logger != null) {
 			return logger.getLevel().equals(Level.DEBUG);
