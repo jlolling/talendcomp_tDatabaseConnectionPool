@@ -5,10 +5,10 @@
 		AUTHOR="cimt AG" 
 		COMPATIBILITY="ALL" 
 		PLATEFORM="ALL"
-		RELEASE_DATE="20160610A" 
+		RELEASE_DATE="20160626A" 
 		STARTABLE="true" 
 		STATUS="PROD" 
-		VERSION="1.3"
+		VERSION="1.6"
 		SERIAL="">
 		<SIGNATURE />
 	</HEADER>
@@ -44,6 +44,14 @@
 				<ITEM NAME="PROVIDE" VALUE="PROVIDE" />
 			</ITEMS>
 		</PARAMETER>
+
+	    <PARAMETER
+			NAME="REUSE_EXISTING_POOL"
+			FIELD="CHECK"
+			SHOW="true"
+			NUM_ROW="5"
+			SHOW_IF="MODE == 'CREATE'"
+	    />
 
 		<PARAMETER 
 			NAME="HOST" 
@@ -267,7 +275,7 @@
 
 	<CODEGENERATION>
 		<IMPORTS>
-			<IMPORT NAME="de.cimt.talendcomp.connectionPool" MODULE="de.cimt.talendcomp.connectionPool-1.5-jar-with-dependencies.jar" REQUIRED="true"/>
+			<IMPORT NAME="de.cimt.talendcomp.connectionPool" MODULE="de.cimt.talendcomp.connectionPool-1.6-jar-with-dependencies.jar" REQUIRED="true"/>
 			<IMPORT NAME="Driver-Postgres9" MODULE="postgresql-9.4-1201.jdbc41.jar" MVN="mvn:org.talend.libraries/postgresql-9.4-1201.jdbc41/6.0.0"  UrlPath="platform:/plugin/org.talend.libraries.jdbc.postgresql/lib/postgresql-9.4-1201.jdbc41.jar" REQUIRED_IF="DB_VERSION =='V9_X'" />
 		</IMPORTS>
 	</CODEGENERATION>

@@ -1,10 +1,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>de.cimt.talendcomp</groupId>
 	<artifactId>de.cimt.talendcomp.connectionPool</artifactId>
-	<version>1.5</version>
+	<version>1.6</version>
 	<packaging>jar</packaging>
 
 	<name>connectionPool</name>
@@ -21,13 +21,13 @@
 			<artifactId>commons-dbcp2</artifactId>
 			<version>2.1.1</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.oracle</groupId>
 			<artifactId>ucp</artifactId>
 			<version>11.2.0.3</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
@@ -41,35 +41,42 @@
 			<scope>test</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>de.cimt.talendcomp.test</groupId>
+			<artifactId>talend-fake-job</artifactId>
+			<version>0.9</version>
+			<scope>provided</scope>
+		</dependency>
+
 	</dependencies>
-	
+
 	<build>
-	    <plugins>	    
-	      <plugin>
-	        <artifactId>maven-assembly-plugin</artifactId>
-	        <executions>
-	          <execution>
-	            <phase>package</phase>
-	            <goals>
-	              <goal>single</goal>
-	            </goals>
-	          </execution>
-	        </executions>
-	        <configuration>
-	          <descriptorRefs>
-	            <descriptorRef>jar-with-dependencies</descriptorRef>
-	          </descriptorRefs>
-	        </configuration>
-	      </plugin>
-	      
-		<plugin>
-	    	<artifactId>maven-compiler-plugin</artifactId>
-     		<configuration>
-       	  		<source>1.6</source>
-      	   		<target>1.6</target>
-    		</configuration>
-		</plugin>
-	      
-	    </plugins>
+		<plugins>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+
+		</plugins>
 	</build>
 </project>

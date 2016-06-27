@@ -270,7 +270,7 @@ public class BasicConnectionPool {
 	 * @throws SQLException
 	 * @throws UniversalConnectionPoolException
 	 */
-	public void close() throws SQLException, UniversalConnectionPoolException {
+	public void closePool() throws SQLException, UniversalConnectionPoolException {
 		if (this.databaseType.equals("ORACLE")) {
 			if (ucpManager == null) {
 				throw new IllegalStateException("Connection pool not set up");
@@ -553,22 +553,40 @@ public class BasicConnectionPool {
 		BasicConnectionPool.logger = logger;
 	}
 
-	public static void setupPooledDataSources(Map<String, Object> globalMap, String dataSourceKey) throws Exception {
+	public static void convertToPooledDataSources(Map<String, Object> globalMap, String dataSourceKey) {
 		@SuppressWarnings("unchecked")
-		Map<String, routines.system.TalendDataSource> map = (Map<String, routines.system.TalendDataSource>) globalMap.get(dataSourceKey);
-		if (map == null) {
-			warn("DatabaseSources not available. This is not a problem if this job does not run in a service.");
+		Map<String, routines.system.TalendDataSource> dsmap = (Map<String, routines.system.TalendDataSource>) globalMap.get(dataSourceKey);
+		if (dsmap == null) {
+			warn("No DataSources are available. This is not a problem if this job does not run in a service.");
 		} else {
-			Map<String, routines.system.TalendDataSource> newMap = new HashMap<String, TalendDataSource>();
-			for (Map.Entry<String, routines.system.TalendDataSource> entry : map.entrySet()) {
+			for (Map.Entry<String, routines.system.TalendDataSource> entry : dsmap.entrySet()) {
 				routines.system.TalendDataSource tds = entry.getValue();
+				if (tds instanceof PooledTalendDataSource) {
+					continue; // do not stack pooled data sources
+				}
 				if (tds.getRawDataSource() != null) {
+					debug("Replace TalendDataSource for alias: " + entry.getKey() + " with a PooledTalendDataSource");
 					PooledTalendDataSource pds = new PooledTalendDataSource(tds.getRawDataSource());
-					newMap.put(entry.getKey(), pds);
+					dsmap.put(entry.getKey(), pds);
 				}
 			}
-			// finally set the new datasource map to the globalMap
-			globalMap.put(dataSourceKey, newMap);
+		}
+	}
+
+	public static void convertToPooledDataSource(Map<String, Object> globalMap, String dataSourceKey, String alias) throws Exception {
+		@SuppressWarnings("unchecked")
+		Map<String, routines.system.TalendDataSource> dsmap = (Map<String, routines.system.TalendDataSource>) globalMap.get(dataSourceKey);
+		if (dsmap == null) {
+			throw new Exception("No DataSources are available.");
+		}
+		routines.system.TalendDataSource tds = dsmap.get(alias);
+		if (tds == null) {
+			throw new Exception("No DataSource: " + alias + " are available.");
+		}
+		if ((tds instanceof PooledTalendDataSource) == false) {
+			debug("Replace TalendDataSource for alias: " + alias + " with a PooledTalendDataSource");
+			PooledTalendDataSource pds = new PooledTalendDataSource(tds.getRawDataSource());
+			dsmap.put(alias, pds);
 		}
 	}
 	
