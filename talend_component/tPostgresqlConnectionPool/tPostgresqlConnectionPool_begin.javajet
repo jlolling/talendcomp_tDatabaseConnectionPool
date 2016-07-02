@@ -2,6 +2,7 @@
     org.talend.core.model.process.INode 
     org.talend.core.model.process.ElementParameterParser 
     org.talend.designer.codegen.config.CodeGeneratorArgument
+    org.talend.core.model.utils.NodeUtil
   " 
 %>
 
@@ -52,6 +53,32 @@
 		de.cimt.talendcomp.connectionpool.BasicConnectionPool.warn("No database pool from a connection pool component found. Guess we use the Talend injected datasources. Now fixing the missing pool feature...");
 		de.cimt.talendcomp.connectionpool.BasicConnectionPool.convertToPooledDataSources(globalMap, KEY_DB_DATASOURCES);
 	}
+<% } else if ("CONNECTION_WORKAROUND".equals(mode)) { 
+		String connectionToFix = ElementParameterParser.getValue(node, "__CONNECTION_TO_FIX__"); 
+		INode connectionNode = NodeUtil.getNodeByUniqueName(node.getProcess(), connectionToFix);
+		boolean useAlias = "true".equals(ElementParameterParser.getValue(connectionNode, "__SPECIFY_DATASOURCE_ALIAS__")); 
+		String connAlias = ElementParameterParser.getValue(connectionNode, "__DATASOURCE_ALIAS__"); 
+		if (useAlias && connAlias != null) { %>
+	{
+		String dsAlias = <%=connAlias%>;
+		if (dsAlias != null && dsAlias.trim().isEmpty() == false) {
+		   @SuppressWarnings("unchecked")
+			java.util.Map<String, routines.system.TalendDataSource> dataSources = (java.util.Map<String, routines.system.TalendDataSource>) globalMap.get(KEY_DB_DATASOURCES);
+			if (dataSources != null) {
+				java.sql.Connection conn = dataSources.get(dsAlias).getRawDataSource().getConnection();
+				if (conn == null) {
+					throw new Exception("Got no connection from datasource!");
+				} else {
+					conn.setAutoCommit(false);
+					// let the other components referencing this connection really use this connection! 
+					globalMap.put("conn_<%=connectionToFix%>", conn);
+				}
+			}				
+		}
+	}
+<%    } else { %>
+	// connection <%=connectionToFix%> was not configured to use a data source
+<%    } %>
 <% } else if ("CLOSE_POOL".equals(mode)) { %>
 	{
   		de.cimt.talendcomp.connectionpool.BasicConnectionPool pool = (de.cimt.talendcomp.connectionpool.BasicConnectionPool) globalMap.get("<%=creationComponent%>_pool");
@@ -63,6 +90,7 @@
 <% } else if ("CREATE_POOL".equals(mode)) { %> 
 	boolean dsAlreadyExists_<%=cid%> = false;
 <%		if (reusePool) { %>
+   @SuppressWarnings("unchecked")
 	java.util.Map<String, routines.system.TalendDataSource> dsmap_<%=cid%> = (java.util.Map<String, routines.system.TalendDataSource>) globalMap.get(KEY_DB_DATASOURCES);
 	if (dsmap_<%=cid%> != null) {
 		String alias = <%=alias%>;

@@ -5,10 +5,10 @@
 		AUTHOR="cimt AG" 
 		COMPATIBILITY="ALL" 
 		PLATEFORM="ALL"
-		RELEASE_DATE="20160626A" 
+		RELEASE_DATE="20160702A" 
 		STARTABLE="true" 
 		STATUS="PROD" 
-		VERSION="1.6"
+		VERSION="1.7"
 		SERIAL="">
 		<SIGNATURE />
 	</HEADER>
@@ -42,6 +42,7 @@
 				<ITEM NAME="CREATE" VALUE="CREATE_POOL" />
 				<ITEM NAME="CLOSE" VALUE="CLOSE_POOL" />
 				<ITEM NAME="PROVIDE" VALUE="PROVIDE" />
+				<ITEM NAME="CONNECTION_WORKAROUND" VALUE="CONNECTION_WORKAROUND" />
 			</ITEMS>
 		</PARAMETER>
 
@@ -132,6 +133,14 @@
 			DYNAMIC_SETTINGS="true"
 			SHOW_IF="MODE == 'CLOSE'" />
 			
+		<PARAMETER 
+			NAME="CONNECTION_TO_FIX" 
+			FIELD="COMPONENT_LIST"
+		   	FILTER="REGEXP:^t(.)*(Connection)(_9-0)*"
+			NUM_ROW="60" 
+			REQUIRED="true"
+			SHOW_IF="MODE == 'CONNECTION_WORKAROUND'" />
+
 		<PARAMETER
 			NAME="AUTO_COMMIT"
 			FIELD="CHECK"
@@ -276,7 +285,7 @@
 	<CODEGENERATION>
 		<IMPORTS>
 			<IMPORT NAME="de.cimt.talendcomp.connectionPool" MODULE="de.cimt.talendcomp.connectionPool-1.6-jar-with-dependencies.jar" REQUIRED="true"/>
-			<IMPORT NAME="Driver-Postgres9" MODULE="postgresql-9.4-1201.jdbc41.jar" MVN="mvn:org.talend.libraries/postgresql-9.4-1201.jdbc41/6.0.0"  UrlPath="platform:/plugin/org.talend.libraries.jdbc.postgresql/lib/postgresql-9.4-1201.jdbc41.jar" REQUIRED_IF="DB_VERSION =='V9_X'" />
+			<IMPORT NAME="Driver-Postgres9" MODULE="postgresql-9.4-1201.jdbc41.jar" MVN="mvn:org.talend.libraries/postgresql-9.4-1201.jdbc41/6.0.0"  UrlPath="platform:/plugin/org.talend.libraries.jdbc.postgresql/lib/postgresql-9.4-1201.jdbc41.jar" />
 		</IMPORTS>
 	</CODEGENERATION>
 	<RETURNS>
