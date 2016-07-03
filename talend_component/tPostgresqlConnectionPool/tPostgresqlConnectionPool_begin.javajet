@@ -51,9 +51,12 @@
 		String connectionToFix = ElementParameterParser.getValue(node, "__CONNECTION_TO_FIX__"); 
 		INode connectionNode = NodeUtil.getNodeByUniqueName(node.getProcess(), connectionToFix);
 		boolean useAlias = "true".equals(ElementParameterParser.getValue(connectionNode, "__SPECIFY_DATASOURCE_ALIAS__")); 
+		boolean useAutoCommit = "true".equals(ElementParameterParser.getValue(connectionNode, "__AUTO_COMMIT__")); 
 		String connAlias = ElementParameterParser.getValue(connectionNode, "__DATASOURCE_ALIAS__"); 
 		if (useAlias && connAlias != null) { %>
-	{
+	if (globalMap.get("conn_<%=connectionToFix%>") == null) {
+		// the bug TDI-36765 still happens, the connection has done nothing
+		// let us do it.
 		String dsAlias = <%=connAlias%>;
 		if (dsAlias != null && dsAlias.trim().isEmpty() == false) {
 		   @SuppressWarnings("unchecked")
@@ -64,7 +67,7 @@
 					if (conn == null) {
 						throw new Exception("<%=connectionToFix%>: Got no connection from data source with alias: " + dsAlias);
 					} else {
-						conn.setAutoCommit(false);
+						conn.setAutoCommit(<%=useAutoCommit%>);
 						// let the other components referencing this connection really use this connection! 
 						globalMap.put("conn_<%=connectionToFix%>", conn);
 					}
