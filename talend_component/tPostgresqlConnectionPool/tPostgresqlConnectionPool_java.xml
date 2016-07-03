@@ -46,14 +46,6 @@
 			</ITEMS>
 		</PARAMETER>
 
-	    <PARAMETER
-			NAME="REUSE_EXISTING_POOL"
-			FIELD="CHECK"
-			SHOW="true"
-			NUM_ROW="5"
-			SHOW_IF="MODE == 'CREATE'"
-	    />
-
 		<PARAMETER 
 			NAME="HOST" 
 			FIELD="TEXT" 
@@ -284,7 +276,7 @@
 
 	<CODEGENERATION>
 		<IMPORTS>
-			<IMPORT NAME="de.cimt.talendcomp.connectionPool" MODULE="de.cimt.talendcomp.connectionPool-1.6-jar-with-dependencies.jar" REQUIRED="true"/>
+			<IMPORT NAME="cimt-talendcomp-connectionpool" MODULE="cimt-talendcomp-connectionpool-1.7.jar" REQUIRED="true"/>
 			<IMPORT NAME="Driver-Postgres9" MODULE="postgresql-9.4-1201.jdbc41.jar" MVN="mvn:org.talend.libraries/postgresql-9.4-1201.jdbc41/6.0.0"  UrlPath="platform:/plugin/org.talend.libraries.jdbc.postgresql/lib/postgresql-9.4-1201.jdbc41.jar" />
 		</IMPORTS>
 	</CODEGENERATION>
