@@ -42,21 +42,14 @@
 				<ITEM NAME="CREATE" VALUE="CREATE_POOL" />
 				<ITEM NAME="CLOSE" VALUE="CLOSE_POOL" />
 				<ITEM NAME="PROVIDE" VALUE="PROVIDE" />
+				<ITEM NAME="CONNECTION_WORKAROUND" VALUE="CONNECTION_WORKAROUND" />
 			</ITEMS>
 		</PARAMETER>
-
-	    <PARAMETER
-			NAME="REUSE_EXISTING_POOL"
-			FIELD="CHECK"
-			SHOW="true"
-			NUM_ROW="5"
-			SHOW_IF="MODE == 'CREATE'"
-	    />
 
 		<PARAMETER 
 			NAME="HOST" 
 			FIELD="TEXT" 
-			NUM_ROW="3" 
+			NUM_ROW="10" 
 			REQUIRED="true"
 			REPOSITORY_VALUE="SERVER_NAME"
 			SHOW_IF="MODE == 'CREATE'">
@@ -66,7 +59,7 @@
 		<PARAMETER 
 			NAME="PORT" 
 			FIELD="TEXT" 
-			NUM_ROW="3" 
+			NUM_ROW="10" 
 			REQUIRED="true"
 			REPOSITORY_VALUE="PORT"
 			SHOW_IF="MODE == 'CREATE'">
@@ -76,7 +69,7 @@
 		<PARAMETER 
 			NAME="DATABASE" 
 			FIELD="TEXT" 
-			NUM_ROW="3"
+			NUM_ROW="15"
 			REQUIRED="true" 
 			REPOSITORY_VALUE="SID"
 			SHOW_IF="MODE == 'CREATE'">
@@ -86,7 +79,7 @@
 		<PARAMETER 
 			NAME="USER" 
 			FIELD="TEXT" 
-			NUM_ROW="4" 
+			NUM_ROW="20" 
 			REQUIRED="true"
 			REPOSITORY_VALUE="USERNAME"
 			SHOW_IF="MODE == 'CREATE'">
@@ -96,7 +89,7 @@
 		<PARAMETER 
 			NAME="PASS" 
 			FIELD="PASSWORD" 
-			NUM_ROW="4"
+			NUM_ROW="20"
 			REQUIRED="true" 
 			REPOSITORY_VALUE="PASSWORD"
 			SHOW_IF="MODE == 'CREATE'">
@@ -106,7 +99,7 @@
 		<PARAMETER 
 			NAME="ALIAS" 
 			FIELD="TEXT" 
-			NUM_ROW="5" 
+			NUM_ROW="50" 
 			REQUIRED="true"
 			SHOW_IF="MODE == 'CREATE'">
 			<DEFAULT>"MysqlConnectionPool"</DEFAULT>
@@ -116,14 +109,22 @@
 			NAME="CONNECTION_POOL" 
 			FIELD="COMPONENT_LIST"
 			FILTER="tMysqlConnectionPool" 
-			NUM_ROW="10" 
+			NUM_ROW="60" 
 			DYNAMIC_SETTINGS="true"
 			SHOW_IF="MODE == 'CLOSE'" />
 			
+		<PARAMETER 
+			NAME="CONNECTION_TO_FIX" 
+			FIELD="COMPONENT_LIST"
+		   	FILTER="REGEXP:^t(.)*(Connection)(_9-0)*"
+			NUM_ROW="60" 
+			REQUIRED="true"
+			SHOW_IF="MODE == 'CONNECTION_WORKAROUND'" />
+
 		<PARAMETER
 			NAME="AUTO_COMMIT"
 			FIELD="CHECK"
-			NUM_ROW="20"
+			NUM_ROW="70"
 			SHOW_IF="MODE == 'CREATE'">
 			<DEFAULT>false</DEFAULT>
     	</PARAMETER>
@@ -263,7 +264,7 @@
 
 	<CODEGENERATION>
 		<IMPORTS>
-			<IMPORT NAME="de.cimt.talendcomp.connectionPool" MODULE="de.cimt.talendcomp.connectionPool-1.6-jar-with-dependencies.jar" REQUIRED="true"/>
+			<IMPORT NAME="cimt-talendcomp-connectionpool" MODULE="cimt-talendcomp-connectionpool-1.7.jar" REQUIRED="true"/>
 			<IMPORT NAME="Mysql_Driver5" MODULE="mysql-connector-java-5.1.30-bin.jar" REQUIRED_IF="true" />
 		</IMPORTS>
 	</CODEGENERATION>
