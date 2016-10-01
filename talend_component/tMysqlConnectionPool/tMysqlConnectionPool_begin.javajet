@@ -98,7 +98,7 @@
 	}
 	if (dsAlreadyExists_<%=cid%> == false) {
   		de.cimt.talendcomp.connectionpool.BasicConnectionPool.info("Create new pool with alias: " + <%=alias%>);
-	  	String connectionString_<%=cid%> = "jdbc:mysql://"+<%=host%>+":"+<%=port%>+"/"+<%=database%> + additionalPropertiesQuery;
+	  	String connectionString_<%=cid%> = "jdbc:mysql://"+<%=host%>+":"+<%=port%>+"/"+<%=database%>;
   		de.cimt.talendcomp.connectionpool.BasicConnectionPool <%=cid%> = new de.cimt.talendcomp.connectionpool.BasicConnectionPool(connectionString_<%=cid%>, <%=user%>, <%=password%>, "MySQL");
   		de.cimt.talendcomp.connectionpool.BasicConnectionPool.setDebug(<%=debug%>);
   		<%=cid%>.setAdditionalProperties(<%=additional_param%>);

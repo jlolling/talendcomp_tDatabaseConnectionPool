@@ -23,17 +23,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.dbcp2.BasicDataSource;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+
 import oracle.ucp.UniversalConnectionPoolAdapter;
 import oracle.ucp.UniversalConnectionPoolException;
 import oracle.ucp.admin.UniversalConnectionPoolManager;
 import oracle.ucp.admin.UniversalConnectionPoolManagerImpl;
 import oracle.ucp.jdbc.PoolDataSource;
 import oracle.ucp.jdbc.PoolDataSourceFactory;
-
-import org.apache.commons.dbcp2.BasicDataSource;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-
 import routines.system.TalendDataSource;
 
 public class BasicConnectionPool {
@@ -496,10 +495,12 @@ public class BasicConnectionPool {
 	}
 
 	public static void debug(String message) {
-		if (logger != null) {
-			logger.debug(message);
-		} else {
-			System.out.println(Thread.currentThread().getName() + ": DEBUG: " + message);
+		if (isDebug()) {
+			if (logger != null) {
+				logger.debug(message);
+			} else {
+				System.out.println(Thread.currentThread().getName() + ": DEBUG: " + message);
+			}
 		}
 	}
 
