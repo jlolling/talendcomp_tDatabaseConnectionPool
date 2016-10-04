@@ -2,6 +2,7 @@
     org.talend.core.model.process.INode 
     org.talend.core.model.process.ElementParameterParser 
     org.talend.designer.codegen.config.CodeGeneratorArgument
+    org.talend.core.model.utils.NodeUtil
   " 
 %>
 
@@ -142,7 +143,6 @@
 	  	globalMap.put("<%=cid%>_pool",<%=cid%>);
 	  	globalMap.put("db_<%=cid%>", <%=database%>);
 	  	globalMap.put("<%=cid%>_DBNAME", <%=database%>);
-	  	globalMap.put("schema_" + "<%=cid%>",<%=dbschema%>);
 	} else { // if (<%=cid%> == null)
 		de.cimt.talendcomp.connectionpool.BasicConnectionPool.debug("Use existing pool with alias: " + <%=alias%>);
   	} // if (dsAlreadyExists_<%=cid%> == false)
