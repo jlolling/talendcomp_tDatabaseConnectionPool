@@ -42,6 +42,8 @@
 	boolean debug = "true".equals(ElementParameterParser.getValue(node, "__DEBUG__"));
 	boolean autoCommit = "true".equals(ElementParameterParser.getValue(node, "__AUTO_COMMIT__"));
 	boolean reusePool = "true".equals(ElementParameterParser.getValue(node, "__REUSE_EXISTING_POOL__"));
+    boolean log4jEnabled = "true".equals(org.talend.core.model.process.ElementParameterParser.getValue(node.getProcess(), "__LOG4J_ACTIVATE__")) && 
+   							"JOBLET".equals(node.getComponent().getComponentType().toString()) == false;
 %>
 
 <% if ("PROVIDE".equals(mode)) { %>
@@ -90,7 +92,7 @@
 	}
 <% } else if ("CREATE_POOL".equals(mode)) { %> 
 	boolean dsAlreadyExists_<%=cid%> = false;
-   @SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked")
 	java.util.Map<String, routines.system.TalendDataSource> dsmap_<%=cid%> = (java.util.Map<String, routines.system.TalendDataSource>) globalMap.get(KEY_DB_DATASOURCES);
 	if (dsmap_<%=cid%> != null) {
 		String alias = <%=alias%>;
@@ -130,6 +132,9 @@
 			// establish the connections
   			<%=cid%>.initializePool();
   		} catch (Exception e) {
+<% 		if (log4jEnabled) { %>
+			log.error(currentComponent + ": " + e.getMessage(), e);
+<% 		} %>
   			globalMap.put("<%=cid%>_ERROR_MESSAGE", e.getMessage());
   			throw e;
   		}
