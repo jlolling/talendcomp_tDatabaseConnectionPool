@@ -47,7 +47,7 @@ public class BasicConnectionPool {
 	private Integer timeIdleConnectionIsChecked = 30000;
 	private Integer timeBetweenChecks = 60000;
 	private Integer initialSize = 0;
-	private Integer maxTotal = 5;
+	private Integer maxTotal = -1;
 	//private Integer maxIdle = 5;
 	private Integer maxWaitForConnection = 0;
 	private Integer numConnectionsPerCheck = 5;
@@ -135,7 +135,9 @@ public class BasicConnectionPool {
 			this.dataSourceOra.setInactiveConnectionTimeout(this.timeIdleConnectionIsChecked);
 			this.dataSourceOra.setTimeoutCheckInterval(this.timeBetweenChecks);
 			this.dataSourceOra.setInitialPoolSize(this.initialSize);
-			this.dataSourceOra.setMaxPoolSize(this.maxTotal);
+			if (this.maxTotal > 0) {
+				this.dataSourceOra.setMaxPoolSize(this.maxTotal);
+			}
 			this.dataSourceOra.setConnectionWaitTimeout(this.maxWaitForConnection);
 			this.dataSourceOra.setSQLForValidateConnection(this.validationQuery);
 			if (connectionPropertiesStr != null) {
