@@ -5,10 +5,10 @@
 		AUTHOR="cimt AG" 
 		COMPATIBILITY="ALL" 
 		PLATEFORM="ALL"
-		RELEASE_DATE="20161123" 
+		RELEASE_DATE="20161130" 
 		STARTABLE="true" 
 		STATUS="PROD" 
-		VERSION="1.9"
+		VERSION="2.0"
 		SERIAL="">
 		<SIGNATURE />
 	</HEADER>
@@ -264,7 +264,7 @@
 
 	<CODEGENERATION>
 		<IMPORTS>
-			<IMPORT NAME="cimt-talendcomp-connectionpool" MODULE="cimt-talendcomp-connectionpool-1.9.jar" REQUIRED="true"/>
+			<IMPORT NAME="cimt-talendcomp-connectionpool" MODULE="cimt-talendcomp-connectionpool-2.0.jar" REQUIRED="true"/>
 			<IMPORT NAME="Mysql_Driver5" MODULE="mysql-connector-java-5.1.30-bin.jar" REQUIRED_IF="true" />
 		</IMPORTS>
 	</CODEGENERATION>

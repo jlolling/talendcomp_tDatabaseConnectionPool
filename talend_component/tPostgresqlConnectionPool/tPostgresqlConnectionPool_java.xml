@@ -5,10 +5,10 @@
 		AUTHOR="cimt AG" 
 		COMPATIBILITY="ALL" 
 		PLATEFORM="ALL"
-		RELEASE_DATE="20161123" 
+		RELEASE_DATE="20161130" 
 		STARTABLE="true" 
 		STATUS="PROD" 
-		VERSION="1.9"
+		VERSION="2.0"
 		SERIAL="">
 		<SIGNATURE />
 	</HEADER>
@@ -140,6 +140,15 @@
 			SHOW_IF="MODE == 'CREATE'">
 			<DEFAULT>false</DEFAULT>
     	</PARAMETER>
+
+		<PARAMETER 
+			NAME="SHARED_CONNECTION_NAME" 
+			FIELD="TEXT" 
+			NUM_ROW="80" 
+			REQUIRED="false"
+			SHOW_IF="MODE == 'CONNECTION_WORKAROUND'">
+			<DEFAULT></DEFAULT>
+		</PARAMETER>
 
 	</PARAMETERS>
 
@@ -275,7 +284,7 @@
 
 	<CODEGENERATION>
 		<IMPORTS>
-			<IMPORT NAME="cimt-talendcomp-connectionpool" MODULE="cimt-talendcomp-connectionpool-1.9.jar" REQUIRED="true"/>
+			<IMPORT NAME="cimt-talendcomp-connectionpool" MODULE="cimt-talendcomp-connectionpool-2.0.jar" REQUIRED="true"/>
 			<IMPORT NAME="Driver-Postgres9" MODULE="postgresql-9.4-1201.jdbc41.jar" MVN="mvn:org.talend.libraries/postgresql-9.4-1201.jdbc41/6.0.0"  UrlPath="platform:/plugin/org.talend.libraries.jdbc.postgresql/lib/postgresql-9.4-1201.jdbc41.jar" />
 		</IMPORTS>
 	</CODEGENERATION>

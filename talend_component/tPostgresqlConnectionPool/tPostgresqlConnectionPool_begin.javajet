@@ -55,30 +55,49 @@
 		boolean useAlias = "true".equals(ElementParameterParser.getValue(connectionNode, "__SPECIFY_DATASOURCE_ALIAS__")); 
 		boolean useAutoCommit = "true".equals(ElementParameterParser.getValue(connectionNode, "__AUTO_COMMIT__")); 
 		String connAlias = ElementParameterParser.getValue(connectionNode, "__DATASOURCE_ALIAS__"); 
+		String sharedConnName = ElementParameterParser.getValue(node, "__SHARED_CONNECTION_NAME__");
+		if (sharedConnName == null || sharedConnName.trim().isEmpty()) {
+			sharedConnName = "null";
+		}
 		if (useAlias && connAlias != null) { %>
 	if (globalMap.get("conn_<%=connectionToFix%>") == null) {
 		// the bug TDI-36765 still happens, the connection has done nothing
 		// let us do it.
-		String dsAlias = <%=connAlias%>;
-		if (dsAlias != null && dsAlias.trim().isEmpty() == false) {
-		   @SuppressWarnings("unchecked")
-			java.util.Map<String, routines.system.TalendDataSource> dataSources = (java.util.Map<String, routines.system.TalendDataSource>) globalMap.get(KEY_DB_DATASOURCES);
-			if (dataSources != null) {
-				if (dataSources.get(dsAlias) != null) {
-					java.sql.Connection conn = dataSources.get(dsAlias).getRawDataSource().getConnection();
-					if (conn == null) {
-						throw new Exception("<%=connectionToFix%>: Got no connection from data source with alias: " + dsAlias);
-					} else {
-						conn.setAutoCommit(<%=useAutoCommit%>);
-						// let the other components referencing this connection really use this connection! 
-						globalMap.put("conn_<%=connectionToFix%>", conn);
-					}
-				} else {
-					throw new Exception("<%=connectionToFix%>: references to a not existing data source with alias: " + dsAlias);				
-				}
-			}				
+		// try to get a shared connection
+		java.sql.Connection sharedConnection = null;
+		String sharedConnectionName = <%=sharedConnName%>;
+		if (sharedConnectionName != null && sharedConnectionName.trim().isEmpty() == false) {
+			sharedConnection = de.cimt.talendcomp.connectionpool.ThreadLocalConnectionCache.get(sharedConnectionName);
 		}
-	}
+		if (sharedConnection != null) {
+			// ok we got a shared connection - we will used
+			globalMap.put("conn_<%=connectionToFix%>", sharedConnection);
+		} else {
+			String dsAlias = <%=connAlias%>;
+			if (dsAlias != null && dsAlias.trim().isEmpty() == false) {
+			    @SuppressWarnings("unchecked")
+				java.util.Map<String, routines.system.TalendDataSource> dataSources = (java.util.Map<String, routines.system.TalendDataSource>) globalMap.get(KEY_DB_DATASOURCES);
+				if (dataSources != null) {
+					if (dataSources.get(dsAlias) != null) {
+						java.sql.Connection connFromPool = dataSources.get(dsAlias).getRawDataSource().getConnection();
+						if (connFromPool == null) {
+							throw new Exception("<%=connectionToFix%>: Got no connection from data source with alias: " + dsAlias);
+						} else {
+							connFromPool.setAutoCommit(<%=useAutoCommit%>);
+							// let the other components referencing this connection really use this connection! 
+							globalMap.put("conn_<%=connectionToFix%>", connFromPool);
+							// keep connection for current thread
+							if (sharedConnectionName != null && sharedConnectionName.trim().isEmpty() == false) {
+								de.cimt.talendcomp.connectionpool.ThreadLocalConnectionCache.set(sharedConnectionName, connFromPool);
+							}
+						}
+					} else {
+						throw new Exception("<%=connectionToFix%>: references to a not existing data source with alias: " + dsAlias);				
+					}
+				}				
+			} // if (dsAlias != null
+		}
+	} // if (globalMap.get("conn_
 <%    } else { %>
 	// connection <%=connectionToFix%> was not configured to use a data source
 <%    } %>
