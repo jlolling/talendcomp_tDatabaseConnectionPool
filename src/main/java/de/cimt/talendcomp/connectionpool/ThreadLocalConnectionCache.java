@@ -13,6 +13,7 @@ public class ThreadLocalConnectionCache {
 		ThreadLocal<Connection> tl = connectionMap.get(sharedConnectionName);
 		if (tl == null) {
 			tl = new ThreadLocal<Connection>();
+			connectionMap.put(sharedConnectionName, tl);
 		}
 		tl.set(conn);
 	}
@@ -36,6 +37,7 @@ public class ThreadLocalConnectionCache {
 			} catch (SQLException sqle) {
 				// ignore
 			}
+			tl.remove();
 		}
 	}
 
