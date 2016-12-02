@@ -21,18 +21,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import oracle.ucp.UniversalConnectionPoolAdapter;
 import oracle.ucp.UniversalConnectionPoolException;
-import oracle.ucp.admin.UniversalConnectionPoolManager;
-import oracle.ucp.admin.UniversalConnectionPoolManagerImpl;
-import oracle.ucp.jdbc.PoolDataSource;
-import oracle.ucp.jdbc.PoolDataSourceFactory;
 import routines.system.TalendDataSource;
 
 public class BasicConnectionPool {
@@ -40,7 +34,6 @@ public class BasicConnectionPool {
 	private static Logger logger = null;
 	private String user;
 	private String pass;
-	private String databaseType = null;
 	private String connectionUrl = null;
 	private boolean testOnBorrow = true;
 	//private boolean testWhileIdle = true;
@@ -54,8 +47,6 @@ public class BasicConnectionPool {
 	private String driver = null;
 	private Collection<String> initSQL;
 	private BasicDataSource dataSource = null;
-	private PoolDataSource dataSourceOra = null;
-	private UniversalConnectionPoolManager ucpManager = null;
 	private PooledTalendDataSource pooledTalendDateSource = null;
 	private String poolName = null;
 	private String validationQuery = null;
@@ -73,7 +64,7 @@ public class BasicConnectionPool {
 	 * @param password
 	 * @param databaseType
 	 */
-	public BasicConnectionPool(String connectionUrl, String user, String password, String databaseType) {
+	public BasicConnectionPool(String connectionUrl, String user, String password) {
 		if (connectionUrl == null || connectionUrl.trim().isEmpty()) {
 			throw new IllegalArgumentException("connection url can not be null or empty");
 		} else {
@@ -84,13 +75,9 @@ public class BasicConnectionPool {
 		} else if (password == null) {
 			throw new IllegalArgumentException(
 					"Password can not be null. At least empty String \"\" ");
-		} else if (databaseType == null || databaseType.trim().isEmpty()) {
-			throw new IllegalArgumentException(
-					"databaseType can not be null. Use 'MySQL', 'Oracle', 'DB2', 'PostgreSQL' or 'SQLServer' \"\" ");
 		} else {
 			this.user = user;
 			this.pass = password;
-			this.databaseType = databaseType.trim().toUpperCase();
 		}
 	}
 
@@ -116,106 +103,54 @@ public class BasicConnectionPool {
 	 * @throws Exception
 	 * @throws Exception, UniversalConnectionPoolException
 	 */
-	public void initializePool() throws Exception, UniversalConnectionPoolException {
+	public void initializePool() throws Exception {
 		if (this.driver == null) {
 			throw new IllegalStateException("Please use method loadDriver befor setup datasource");
 		}
 		if (this.connectionUrl == null) {
 			throw new IllegalStateException("Please use method setConnectionString befor setup datasource");
 		}
-		if (this.databaseType.equals("ORACLE")) {
-			// use oracle.ucp.*
-			// due to casting in talend oracle components
-			this.dataSourceOra = PoolDataSourceFactory.getPoolDataSource();
-			this.dataSourceOra.setConnectionFactoryClassName(this.driver);
-			this.dataSourceOra.setConnectionPoolName(this.poolName);
-			this.dataSourceOra.setUser(this.user);
-			this.dataSourceOra.setPassword(this.pass);
-			this.dataSourceOra.setURL(this.connectionUrl);
-			this.dataSourceOra.setValidateConnectionOnBorrow(this.testOnBorrow);
-			this.dataSourceOra.setInactiveConnectionTimeout(this.timeIdleConnectionIsChecked);
-			this.dataSourceOra.setTimeoutCheckInterval(this.timeBetweenChecks);
-			this.dataSourceOra.setInitialPoolSize(this.initialSize);
-			if (this.maxTotal > 0) {
-				this.dataSourceOra.setMaxPoolSize(this.maxTotal);
+		// use org.apache.commons.dbcp2.BasicDataSource
+		this.dataSource = new BasicDataSource();
+		this.dataSource.setUsername(this.user);
+		this.dataSource.setPassword(this.pass);
+		this.dataSource.setUrl(this.connectionUrl);
+		this.dataSource.setTestOnBorrow(this.testOnBorrow);
+		this.dataSource.setTestWhileIdle(true);
+		this.dataSource.setMinEvictableIdleTimeMillis(this.timeIdleConnectionIsChecked);
+		this.dataSource.setTimeBetweenEvictionRunsMillis(this.timeBetweenChecks);
+		this.dataSource.setInitialSize(this.initialSize);
+		this.dataSource.setMaxTotal(this.maxTotal);
+		this.dataSource.setJmxName(buildJmxName());
+		//this.dataSource.setMaxIdle(this.maxIdle);
+		if (this.maxWaitForConnection == 0) { 
+			this.maxWaitForConnection = -1;
+		}
+		this.dataSource.setMaxWaitMillis(this.maxWaitForConnection);
+		this.dataSource.setNumTestsPerEvictionRun(this.numConnectionsPerCheck);
+		this.dataSource.setValidationQuery(this.validationQuery);
+		if (initSQL != null && initSQL.isEmpty() == false) {
+			this.dataSource.setConnectionInitSqls(this.initSQL);
+		}
+		this.dataSource.setDefaultAutoCommit(autoCommit);
+		this.dataSource.setLifo(false);
+		this.dataSource.setLogAbandoned(debug);
+		this.dataSource.setLogExpiredConnections(debug);
+		if (connectionPropertiesStr != null) {
+			this.dataSource.setConnectionProperties(connectionPropertiesStr);
+		}
+		// create our first connection to detect connection problems right here
+		try {
+			Connection testConn = dataSource.getConnection();
+			if (testConn == null) {
+				throw new Exception("No initial data source available");
+			} else if (debug) {
+				debug("Initial check connection pool: number active: " + dataSource.getNumActive() + "number idle: " + dataSource.getNumIdle());
+				testConn.close();
 			}
-			this.dataSourceOra.setConnectionWaitTimeout(this.maxWaitForConnection);
-			this.dataSourceOra.setSQLForValidateConnection(this.validationQuery);
-			if (connectionPropertiesStr != null) {
-				String[] entries = connectionPropertiesStr.split(";");
-		        Properties connnProperties = new Properties();
-		        for (String entry : entries) {
-		            if (entry.length() > 0) {
-		            	int index = entry.indexOf('=');
-		            	if (index > 0) {
-		            		String name = entry.substring(0, index);
-		                    String value = entry.substring(index + 1);
-		                    connnProperties.setProperty(name, value);
-		                }
-		            }
-		        }
-				this.dataSourceOra.setConnectionProperties(connnProperties);
-			}
-			this.ucpManager = UniversalConnectionPoolManagerImpl.getUniversalConnectionPoolManager();
-			this.ucpManager.createConnectionPool((UniversalConnectionPoolAdapter) this.dataSourceOra);
-			this.ucpManager.startConnectionPool(this.poolName);
-			// create our first connection to detect connection problems right here
-			try {
-				Connection testConn = dataSourceOra.getConnection();
-				if (testConn == null) {
-					throw new Exception("No initial data source available");
-				} else if (debug) {
-					debug("Initial check connection from pool: number borrowed: " + dataSourceOra.getBorrowedConnectionsCount() + " number available: " + dataSourceOra.getAvailableConnectionsCount());
-					testConn.close();
-				}
-			} catch (Exception e) {
-				String message = "Test pool failed. URL=" + this.connectionUrl + " USER=" + this.user + ". Error message=" + e.getMessage();
-				error(message, e);
-				throw new Exception(message, e);
-			}
-		} else {
-			// use org.apache.commons.dbcp2.BasicDataSource
-			this.dataSource = new BasicDataSource();
-			this.dataSource.setUsername(this.user);
-			this.dataSource.setPassword(this.pass);
-			this.dataSource.setUrl(this.connectionUrl);
-			this.dataSource.setTestOnBorrow(this.testOnBorrow);
-			this.dataSource.setTestWhileIdle(true);
-			this.dataSource.setMinEvictableIdleTimeMillis(this.timeIdleConnectionIsChecked);
-			this.dataSource.setTimeBetweenEvictionRunsMillis(this.timeBetweenChecks);
-			this.dataSource.setInitialSize(this.initialSize);
-			this.dataSource.setMaxTotal(this.maxTotal);
-			this.dataSource.setJmxName(buildJmxName());
-			//this.dataSource.setMaxIdle(this.maxIdle);
-			if (this.maxWaitForConnection == 0) { 
-				this.maxWaitForConnection = -1;
-			}
-			this.dataSource.setMaxWaitMillis(this.maxWaitForConnection);
-			this.dataSource.setNumTestsPerEvictionRun(this.numConnectionsPerCheck);
-			this.dataSource.setValidationQuery(this.validationQuery);
-			if (initSQL != null && initSQL.isEmpty() == false) {
-				this.dataSource.setConnectionInitSqls(this.initSQL);
-			}
-			this.dataSource.setDefaultAutoCommit(autoCommit);
-			this.dataSource.setLifo(false);
-			this.dataSource.setLogAbandoned(debug);
-			this.dataSource.setLogExpiredConnections(debug);
-			if (connectionPropertiesStr != null) {
-				this.dataSource.setConnectionProperties(connectionPropertiesStr);
-			}
-			// create our first connection to detect connection problems right here
-			try {
-				Connection testConn = dataSource.getConnection();
-				if (testConn == null) {
-					throw new Exception("No initial data source available");
-				} else if (debug) {
-					debug("Initial check connection pool: number active: " + dataSource.getNumActive() + "number idle: " + dataSource.getNumIdle());
-					testConn.close();
-				}
-			} catch (Exception e) {
-				String message = "Test pool failed. URL=" + this.connectionUrl + " USER=" + this.user + ". Error message=" + e.getMessage();
-				throw new Exception(message, e);
-			}
+		} catch (Exception e) {
+			String message = "Test pool failed. URL=" + this.connectionUrl + " USER=" + this.user + ". Error message=" + e.getMessage();
+			throw new Exception(message, e);
 		}
 	}
 	
@@ -238,17 +173,10 @@ public class BasicConnectionPool {
 	 */
 	public TalendDataSource getDataSource() {
 		if (pooledTalendDateSource == null) {
-			if (this.databaseType.equals("ORACLE")) {
-				if (ucpManager == null) {
-					throw new IllegalStateException("Connection pool not set up");
-				}
-				pooledTalendDateSource = new PooledTalendDataSource(dataSourceOra, ucpManager);
-			} else {
-				if (dataSource == null) {
-					throw new IllegalStateException("Connection pool not set up");
-				}
-				pooledTalendDateSource = new PooledTalendDataSource(dataSource);
+			if (dataSource == null) {
+				throw new IllegalStateException("Connection pool not set up");
 			}
+			pooledTalendDateSource = new PooledTalendDataSource(dataSource);
 			pooledTalendDateSource.setDebug(debug);
 			PooledTalendDataSource.setLogger(logger);
 		}
@@ -273,18 +201,11 @@ public class BasicConnectionPool {
 	 * @throws SQLException
 	 * @throws UniversalConnectionPoolException
 	 */
-	public void closePool() throws SQLException, UniversalConnectionPoolException {
-		if (this.databaseType.equals("ORACLE")) {
-			if (ucpManager == null) {
-				throw new IllegalStateException("Connection pool not set up");
-			}
-			this.ucpManager.destroyConnectionPool(this.poolName);
-		} else {
-			if (dataSource == null) {
-				throw new IllegalStateException("Connection pool not set up");
-			}
-			this.dataSource.close();
+	public void closePool() throws SQLException {
+		if (dataSource == null) {
+			throw new IllegalStateException("Connection pool not set up");
 		}
+		this.dataSource.close();
 	}
 
 	public String getPoolName() {
@@ -451,13 +372,6 @@ public class BasicConnectionPool {
 	public int getNumActiveConnections() {
 		if (dataSource != null) {
 			return dataSource.getNumActive();
-		} else if (dataSourceOra != null) {
-			try {
-				return dataSourceOra.getBorrowedConnectionsCount();
-			} catch (SQLException e) {
-				error(e.getMessage(), e);
-				return 0;
-			}
 		} else {
 			return 0;
 		}
@@ -605,7 +519,7 @@ public class BasicConnectionPool {
 	
 	public String buildJmxName() {
 		if (jndiName != null && jndiName.trim().isEmpty() == false) {
-			return "de.cimt.talendcomp.connectionpool:type=BasicConnectionPool,jndiName="  + jndiName.trim() + ",connectionUrl=" + connectionUrl + ",user=" + user;
+			return "de.cimt.talendcomp.connectionpool:type=BasicConnectionPool,jndiName="  + jndiName.trim().replace(':', '_');
 		} else {
 			return null;
 		}

@@ -4,6 +4,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.sql.Connection;
 import java.sql.Driver;
+import java.util.Hashtable;
+
+import javax.management.ObjectName;
 
 import org.junit.Test;
 
@@ -42,43 +45,14 @@ public class TestThreadLocalConnectionCache {
 	}
 	
 	@Test
-	public void testSetGetThreaded() {
-
-		Runnable oneRequest = new Runnable() {
-			
-			@Override
-			public void run() {
-				try {
-					System.out.println(Thread.currentThread().getName() + ": start");
-					Connection conn = createConnection();
-					ThreadLocalConnectionCache.set("test", conn);
-					Thread.sleep(5000);
-					Connection conn2 = ThreadLocalConnectionCache.get("test");
-					if (conn2.isClosed()) {
-						throw new IllegalStateException("Connection was closed already!");
-					}
-					conn2.close();
-					System.out.println(Thread.currentThread().getName() + ": end");
-					assertTrue(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-					assertTrue(false);
-				}
-			}
-		};
-		
-		Thread t1 = new Thread(oneRequest);
-		Thread t2 = new Thread(oneRequest);
-		Thread t3 = new Thread(oneRequest);
-		Thread t4 = new Thread(oneRequest);
-		Thread t5 = new Thread(oneRequest);
-		t1.start();
-		t2.start();
-		t3.start();
-		t4.start();
-		t5.start();
-		
+	public void testBuildObjectName() throws Exception {
+		Hashtable<String, String> values = new Hashtable<String, String>();
+		values.put("type", "BasicConnectionPool");
+		values.put("jndiName", "jdbc/ds");
+		values.put("url", "jdbc_postgresql_//debiandb.local_5432/postgres");
+		ObjectName name = new ObjectName("de.cimt.talendcoomp.pool", values);
+		System.out.println(name.toString());
+		assertTrue(true);
 	}
-	
 
 }

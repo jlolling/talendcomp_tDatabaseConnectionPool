@@ -8,7 +8,7 @@
 		RELEASE_DATE="20161130" 
 		STARTABLE="true" 
 		STATUS="PROD" 
-		VERSION="2.0"
+		VERSION="2.1"
 		SERIAL="">
 		<SIGNATURE />
 	</HEADER>
@@ -264,7 +264,10 @@
 
 	<CODEGENERATION>
 		<IMPORTS>
-			<IMPORT NAME="cimt-talendcomp-connectionpool" MODULE="cimt-talendcomp-connectionpool-2.0.jar" REQUIRED="true"/>
+			<IMPORT NAME="cimt-talendcomp-connectionpool" MODULE="cimt-talendcomp-connectionpool-2.1.jar" REQUIRED="true"/>
+			<IMPORT NAME="commons-dbcp2" MODULE="commons-dbcp2-2.1.1.jar" REQUIRED="true"/>
+			<IMPORT NAME="commons-pool2" MODULE="commons-pool2-2.4.2.jar" REQUIRED="true"/>
+			<IMPORT NAME="commons-logging" MODULE="commons-logging-1.2.jar" REQUIRED="true"/>
 			<IMPORT NAME="Mysql_Driver5" MODULE="mysql-connector-java-5.1.30-bin.jar" REQUIRED_IF="true" />
 		</IMPORTS>
 	</CODEGENERATION>

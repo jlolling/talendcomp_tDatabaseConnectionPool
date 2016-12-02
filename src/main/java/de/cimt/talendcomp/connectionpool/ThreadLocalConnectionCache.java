@@ -9,19 +9,35 @@ public class ThreadLocalConnectionCache {
 	
 	private static Map<String, ThreadLocal<Connection>> connectionMap = new HashMap<String, ThreadLocal<Connection>>();
 	
-	public static void set(String sharedConnectionName, Connection conn) {
-		ThreadLocal<Connection> tl = connectionMap.get(sharedConnectionName);
-		if (tl == null) {
-			tl = new ThreadLocal<Connection>();
-			connectionMap.put(sharedConnectionName, tl);
+	private static boolean isClosed(Connection conn) {
+		try {
+			return conn.isClosed();
+		} catch (SQLException e) {
+			return true;
 		}
-		tl.set(conn);
+	}
+	
+	public static void set(String sharedConnectionName, Connection conn) {
+		if (isClosed(conn) == false) {
+			ThreadLocal<Connection> tl = connectionMap.get(sharedConnectionName);
+			if (tl == null) {
+				tl = new ThreadLocal<Connection>();
+				connectionMap.put(sharedConnectionName, tl);
+			}
+			tl.set(conn);
+		}
 	}
 	
 	public static Connection get(String sharedConnectionName) {
 		ThreadLocal<Connection> tl = connectionMap.get(sharedConnectionName);
 		if (tl != null) {
-			return tl.get();
+			Connection conn = tl.get();
+			if (isClosed(conn) == false) {
+				return conn;
+			} else {
+				tl.remove();
+				return null;
+			}
 		}
 		return null;
 	}

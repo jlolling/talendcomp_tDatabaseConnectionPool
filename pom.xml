@@ -4,7 +4,7 @@
 
 	<groupId>de.cimt.talendcomp</groupId>
 	<artifactId>cimt-talendcomp-connectionpool</artifactId>
-	<version>2.0</version>
+	<version>2.1</version>
 	<packaging>jar</packaging>
 
 	<name>connectionPool</name>
@@ -32,6 +32,7 @@
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
 			<version>1.2.17</version>
+			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
@@ -60,13 +61,40 @@
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-shade-plugin</artifactId>
+				<artifactId>maven-jar-plugin</artifactId>
 				<executions>
 					<execution>
 						<phase>package</phase>
 						<goals>
-							<goal>shade</goal>
+							<goal>jar</goal>
 						</goals>
+						<configuration>
+							<outputDirectory>talend_component/tPostgresqlConnectionPool</outputDirectory>
+							<overWriteReleases>true</overWriteReleases>
+							<overWriteSnapshots>true</overWriteSnapshots>
+							<overWriteIfNewer>true</overWriteIfNewer>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.basedir}/talend_component/tPostgresqlConnectionPool</outputDirectory>
+							<overWriteReleases>true</overWriteReleases>
+							<overWriteSnapshots>true</overWriteSnapshots>
+							<overWriteIfNewer>true</overWriteIfNewer>
+							<excludeArtifactIds>ucp</excludeArtifactIds>
+							<includeScope>runtime</includeScope>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
