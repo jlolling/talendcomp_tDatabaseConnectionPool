@@ -64,6 +64,7 @@ public class BasicConnectionPool {
 	private static Map<String, routines.system.TalendDataSource> dsMap = null;
 	private static Map<String, BasicConnectionPool> poolMap = new HashMap<String, BasicConnectionPool>();
 	private boolean autoCommit = false;
+	private String jndiName = null;
 	
 	/**
 	 * Constructor with necessary params
@@ -184,6 +185,7 @@ public class BasicConnectionPool {
 			this.dataSource.setTimeBetweenEvictionRunsMillis(this.timeBetweenChecks);
 			this.dataSource.setInitialSize(this.initialSize);
 			this.dataSource.setMaxTotal(this.maxTotal);
+			this.dataSource.setJmxName(buildJmxName());
 			//this.dataSource.setMaxIdle(this.maxIdle);
 			if (this.maxWaitForConnection == 0) { 
 				this.maxWaitForConnection = -1;
@@ -590,6 +592,22 @@ public class BasicConnectionPool {
 			debug("Replace TalendDataSource for alias: " + alias + " with a PooledTalendDataSource");
 			PooledTalendDataSource pds = new PooledTalendDataSource(tds.getRawDataSource());
 			dsmap.put(alias, pds);
+		}
+	}
+
+	public void setJndiName(String jndiName) {
+		if (jndiName != null && jndiName.trim().isEmpty() == false) {
+			this.jndiName = jndiName.trim();
+		} else {
+			this.jndiName = null;
+		}
+	}
+	
+	public String buildJmxName() {
+		if (jndiName != null && jndiName.trim().isEmpty() == false) {
+			return "de.cimt.talendcomp.connectionpool:type=BasicConnectionPool,jndiName="  + jndiName.trim() + ",connectionUrl=" + connectionUrl + ",user=" + user;
+		} else {
+			return null;
 		}
 	}
 	
