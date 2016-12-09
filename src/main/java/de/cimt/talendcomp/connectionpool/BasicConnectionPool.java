@@ -26,31 +26,30 @@ import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import oracle.ucp.UniversalConnectionPoolException;
 import routines.system.TalendDataSource;
 
 public class BasicConnectionPool {
 
-	private static Logger logger = null;
-	private String user;
-	private String pass;
-	private String connectionUrl = null;
-	private boolean testOnBorrow = true;
+	protected static Logger logger = null;
+	protected String user;
+	protected String pass;
+	protected String connectionUrl = null;
+	protected boolean testOnBorrow = true;
 	//private boolean testWhileIdle = true;
-	private Integer timeIdleConnectionIsChecked = 30000;
-	private Integer timeBetweenChecks = 60000;
-	private Integer initialSize = 0;
-	private Integer maxTotal = -1;
+	protected Integer timeIdleConnectionIsChecked = 30000;
+	protected Integer timeBetweenChecks = 60000;
+	protected Integer initialSize = 0;
+	protected Integer maxTotal = -1;
 	//private Integer maxIdle = 5;
-	private Integer maxWaitForConnection = 0;
-	private Integer numConnectionsPerCheck = 5;
-	private String driver = null;
+	protected Integer maxWaitForConnection = 0;
+	protected Integer numConnectionsPerCheck = 5;
+	protected String driver = null;
 	private Collection<String> initSQL;
 	private BasicDataSource dataSource = null;
-	private PooledTalendDataSource pooledTalendDateSource = null;
-	private String poolName = null;
-	private String validationQuery = null;
-	private String connectionPropertiesStr = null;
+	protected PooledTalendDataSource pooledTalendDateSource = null;
+	protected String poolName = null;
+	protected String validationQuery = null;
+	protected String connectionPropertiesStr = null;
 	private static boolean debug = false;
 	private static Map<String, routines.system.TalendDataSource> dsMap = null;
 	private static Map<String, BasicConnectionPool> poolMap = new HashMap<String, BasicConnectionPool>();
@@ -134,8 +133,8 @@ public class BasicConnectionPool {
 		}
 		this.dataSource.setDefaultAutoCommit(autoCommit);
 		this.dataSource.setLifo(false);
-		this.dataSource.setLogAbandoned(debug);
-		this.dataSource.setLogExpiredConnections(debug);
+		this.dataSource.setLogAbandoned(isDebug());
+		this.dataSource.setLogExpiredConnections(isDebug());
 		if (connectionPropertiesStr != null) {
 			this.dataSource.setConnectionProperties(connectionPropertiesStr);
 		}
@@ -144,7 +143,7 @@ public class BasicConnectionPool {
 			Connection testConn = dataSource.getConnection();
 			if (testConn == null) {
 				throw new Exception("No initial data source available");
-			} else if (debug) {
+			} else if (isDebug()) {
 				debug("Initial check connection pool: number active: " + dataSource.getNumActive() + "number idle: " + dataSource.getNumIdle());
 				testConn.close();
 			}
@@ -177,7 +176,7 @@ public class BasicConnectionPool {
 				throw new IllegalStateException("Connection pool not set up");
 			}
 			pooledTalendDateSource = new PooledTalendDataSource(dataSource);
-			pooledTalendDateSource.setDebug(debug);
+			pooledTalendDateSource.setDebug(isDebug());
 			PooledTalendDataSource.setLogger(logger);
 		}
 		return pooledTalendDateSource;
@@ -198,10 +197,9 @@ public class BasicConnectionPool {
 	
 	/**
 	 * close connection pool
-	 * @throws SQLException
-	 * @throws UniversalConnectionPoolException
+	 * @throws Exception
 	 */
-	public void closePool() throws SQLException {
+	public void closePool() throws Exception {
 		if (dataSource == null) {
 			throw new IllegalStateException("Connection pool not set up");
 		}
