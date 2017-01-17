@@ -127,13 +127,13 @@
 	}
 	if (dsAlreadyExists_<%=cid%> == false) {
   		de.cimt.talendcomp.connectionpool.BasicConnectionPool.info("Create new pool with alias: " + <%=alias%>);
-  		String connectionString_<%=cid%> = "jdbc:postgresql://"+<%=host%>+":"+<%=port%>+"/"+<%=database%>;
+  		String connectionString_<%=cid%> = "jdbc:oracle://"+<%=host%>+":"+<%=port%>+"/"+<%=database%>;
   		de.cimt.talendcomp.connectionpool.BasicConnectionPool <%=cid%> = new de.cimt.talendcomp.connectionpool.BasicConnectionPool(connectionString_<%=cid%>, <%=user%>, <%=password%>);
   		de.cimt.talendcomp.connectionpool.BasicConnectionPool.setDebug(<%=debug%>);
   		<%=cid%>.setAdditionalProperties(<%=additional_param%>);
   		<%=cid%>.setAutoCommit(<%=autoCommit%>);
   		<%=cid%>.setNumConnectionsPerCheck(<%=num_connections_checked%>);
-  		<%=cid%>.loadDriver("org.postgresql.Driver");
+  		<%=cid%>.loadDriver("oracle.jdbc.driver.OracleDriver");
   		<%=cid%>.setJndiName(<%=alias%>);
   		<%=cid%>.setTestOnBorrow(<%=test_on_borrow%>);
   		<%=cid%>.setValidationQuery(<%=validationSql%>);
@@ -173,9 +173,9 @@
 	  	dataSourceMap_<%=cid%>.put(<%=alias%>, <%=cid%>.getDataSource());
 	  	// for internal usage e.g. to close the pool
 	  	globalMap.put("<%=cid%>_pool",<%=cid%>);
-	  	globalMap.put("db_<%=cid%>", <%=database%>);
+	  	globalMap.put("dbname_<%=cid%>", <%=database%>);
 	  	globalMap.put("<%=cid%>_DATABASE", <%=database%>);
-	  	globalMap.put("schema_" + "<%=cid%>",<%=dbschema%>);
+	  	globalMap.put("dbschema_<%=cid%>",<%=dbschema%>);
 	} else { // if (<%=cid%> == null)
 		de.cimt.talendcomp.connectionpool.BasicConnectionPool.debug("Use existing pool with alias: " + <%=alias%>);
   	} // if (dsAlreadyExists_<%=cid%> == false)
