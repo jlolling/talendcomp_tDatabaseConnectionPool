@@ -67,7 +67,7 @@
 		if (sharedConnection != null) {
 			// check if there is already a connection from the connection component
 			java.sql.Connection oldConn = (java.sql.Connection) globalMap.get("conn_<%=connectionToFix%>");
-			if (oldConn != null && oldConn.isClosed() == false) {
+			if (oldConn != null && oldConn != sharedConnection && oldConn.isClosed() == false) {
 				oldConn.close(); // close old connection
 			}
 			// make the connection available for the job
