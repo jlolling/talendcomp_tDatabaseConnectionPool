@@ -18,21 +18,28 @@ public class ThreadLocalConnectionCache {
 	}
 	
 	public static void set(String sharedConnectionName, Connection conn) {
-		if (isClosed(conn) == false) {
-			ThreadLocal<Connection> tl = connectionMap.get(sharedConnectionName);
-			if (tl == null) {
-				tl = new ThreadLocal<Connection>();
-				connectionMap.put(sharedConnectionName, tl);
-			}
-			tl.set(conn);
+		if (sharedConnectionName == null || sharedConnectionName.trim().isEmpty()) {
+			throw new IllegalArgumentException("sharedConnectionName cannot be null or empty!");
 		}
+		if (conn == null) {
+			throw new IllegalArgumentException("connection cannot be null!");
+		}
+		if (isClosed(conn)) {
+			throw new IllegalArgumentException("connection cannot be closed!");
+		}
+		ThreadLocal<Connection> tl = connectionMap.get(sharedConnectionName);
+		if (tl == null) {
+			tl = new ThreadLocal<Connection>();
+			connectionMap.put(sharedConnectionName, tl);
+		}
+		tl.set(conn);
 	}
 	
 	public static Connection get(String sharedConnectionName) {
 		ThreadLocal<Connection> tl = connectionMap.get(sharedConnectionName);
 		if (tl != null) {
 			Connection conn = tl.get();
-			if (isClosed(conn) == false) {
+			if (conn != null && isClosed(conn) == false) {
 				return conn;
 			} else {
 				tl.remove();

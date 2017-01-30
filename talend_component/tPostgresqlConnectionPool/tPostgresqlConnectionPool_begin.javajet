@@ -42,6 +42,7 @@
 	}
 	String validationSql = ElementParameterParser.getValue(node, "__VALIDATION_SQL__");
 	String creationComponent = ElementParameterParser.getValue(node, "__CONNECTION_POOL__");
+	boolean enableJMX = "true".equals(ElementParameterParser.getValue(node, "__ENABLE_JMX__"));
 	boolean debug = "true".equals(ElementParameterParser.getValue(node, "__DEBUG__"));
 	boolean autoCommit = "true".equals(ElementParameterParser.getValue(node, "__AUTO_COMMIT__"));
 	boolean reusePool = "true".equals(ElementParameterParser.getValue(node, "__REUSE_EXISTING_POOL__"));
@@ -63,50 +64,57 @@
 			sharedConnName = "null";
 		}
 		if (useAlias && connAlias != null) { %>
-	if (globalMap.get("conn_<%=connectionToFix%>") == null) {
-		// the bug TDI-36765 still happens, the connection has done nothing
-		// let us do it.
-		// try to get a shared connection
+	{
+		// try to get a shared connection from request context
 		java.sql.Connection sharedConnection = null;
 		String sharedConnectionName = <%=sharedConnName%>;
 		if (sharedConnectionName != null && sharedConnectionName.trim().isEmpty() == false) {
 			sharedConnection = de.cimt.talendcomp.connectionpool.ThreadLocalConnectionCache.get(sharedConnectionName);
 		}
 		if (sharedConnection != null) {
-			// ok we got a shared connection - we will used
+			// check if there is already a connection from the connection component
+			java.sql.Connection oldConn = (java.sql.Connection) globalMap.get("conn_<%=connectionToFix%>");
+			if (oldConn != null && oldConn.isClosed() == false) {
+				oldConn.close(); // close old connection
+			}
+			// make the connection available for the job
 			globalMap.put("conn_<%=connectionToFix%>", sharedConnection);
-		} else {
-			String dsAlias = <%=connAlias%>;
-			if (dsAlias != null && dsAlias.trim().isEmpty() == false) {
-			    @SuppressWarnings("unchecked")
-				java.util.Map<String, routines.system.TalendDataSource> dataSources = (java.util.Map<String, routines.system.TalendDataSource>) globalMap.get(KEY_DB_DATASOURCES);
-				if (dataSources != null) {
-					if (dataSources.get(dsAlias) != null) {
-						java.sql.Connection connFromPool = dataSources.get(dsAlias).getRawDataSource().getConnection();
-						if (connFromPool == null) {
-							throw new Exception("<%=connectionToFix%>: Got no connection from data source with alias: " + dsAlias);
-						} else {
-							connFromPool.setAutoCommit(<%=useAutoCommit%>);
-							// let the other components referencing this connection really use this connection! 
-							globalMap.put("conn_<%=connectionToFix%>", connFromPool);
-							// keep connection for current thread
-							if (sharedConnectionName != null && sharedConnectionName.trim().isEmpty() == false) {
-								de.cimt.talendcomp.connectionpool.ThreadLocalConnectionCache.set(sharedConnectionName, connFromPool);
-							}
-						}
-					} else {
-						throw new Exception("<%=connectionToFix%>: references to a not existing data source with alias: " + dsAlias);				
-					}
-				}				
-			} // if (dsAlias != null
 		}
+	}
+	if (globalMap.get("conn_<%=connectionToFix%>") == null) {
+		// the bug TDI-36765 still happens, the connection has done nothing
+		// let us do it.
+		String dsAlias = <%=connAlias%>;
+		if (dsAlias != null && dsAlias.trim().isEmpty() == false) {
+		    @SuppressWarnings("unchecked")
+			java.util.Map<String, routines.system.TalendDataSource> dataSources = (java.util.Map<String, routines.system.TalendDataSource>) globalMap.get(KEY_DB_DATASOURCES);
+			if (dataSources != null) {
+				if (dataSources.get(dsAlias) != null) {
+					java.sql.Connection connFromPool = dataSources.get(dsAlias).getRawDataSource().getConnection();
+					if (connFromPool == null) {
+						throw new Exception("<%=connectionToFix%>: Got no connection from data source with alias: " + dsAlias);
+					} else {
+						connFromPool.setAutoCommit(<%=useAutoCommit%>);
+						// let the other components referencing this connection really use this connection! 
+						globalMap.put("conn_<%=connectionToFix%>", connFromPool);
+						// keep connection for current thread
+						String sharedConnectionName = <%=sharedConnName%>;
+						if (sharedConnectionName != null && sharedConnectionName.trim().isEmpty() == false) {
+							de.cimt.talendcomp.connectionpool.ThreadLocalConnectionCache.set(sharedConnectionName, connFromPool);
+						}
+					}
+				} else {
+					throw new Exception("<%=connectionToFix%>: references to a not existing data source with alias: " + dsAlias);				
+				}
+			}				
+		} // if (dsAlias != null
 	} // if (globalMap.get("conn_
 <%    } else { %>
 	// connection <%=connectionToFix%> was not configured to use a data source
 <%    } %>
 <% } else if ("CLOSE_POOL".equals(mode)) { %>
 	{
-  		de.cimt.talendcomp.connectionpool.BasicConnectionPool pool = (de.cimt.talendcomp.connectionpool.BasicConnectionPool) globalMap.get("<%=creationComponent%>_pool");
+  		de.cimt.talendcomp.connectionpool.BasicConnectionPool pool = (de.cimt.talendcomp.connectionpool.BasicConnectionPool) globalMap.get("pool_<%=creationComponent%>");
   		if (pool != null) {
   			// close only if we do not use a container provided pool
 	  		pool.closePool(); // close the entire pool
@@ -126,19 +134,40 @@
 		}
 	}
 	if (dsAlreadyExists_<%=cid%> == false) {
-  		de.cimt.talendcomp.connectionpool.BasicConnectionPool.info("Create new pool with alias: " + <%=alias%>);
+		// if we do not got an datasource from parent job, perhaps we already have established a connection pool in another child job
+		String alias = <%=alias%>;
+		de.cimt.talendcomp.connectionpool.BasicConnectionPool pool = de.cimt.talendcomp.connectionpool.BasicConnectionPool.getInstance(alias);
+		if (pool != null) {
+			// make the pool available for the current job
+			dsAlreadyExists_<%=cid%> = true;
+			// fill the data source map
+			@SuppressWarnings("unchecked")
+			java.util.Map<String, routines.system.TalendDataSource> dataSourceMap_<%=cid%> = (java.util.Map<String, routines.system.TalendDataSource>) globalMap.get(KEY_DB_DATASOURCES);
+			if (dataSourceMap_<%=cid%> == null) {
+				dataSourceMap_<%=cid%> = new java.util.HashMap<String, routines.system.TalendDataSource>();
+				globalMap.put(KEY_DB_DATASOURCES, dataSourceMap_<%=cid%>);
+			}
+		  	// add data source to the global list of data sources
+		  	dataSourceMap_<%=cid%>.put(<%=alias%>, pool.getDataSource());
+		  	// for internal usage e.g. to close the pool
+		  	globalMap.put("pool_<%=cid%>", pool);
+		}
+	}
+	if (dsAlreadyExists_<%=cid%> == false) {
+  		de.cimt.talendcomp.connectionpool.BasicConnectionPool.info("Create new database pool with alias: " + <%=alias%>);
   		String connectionString_<%=cid%> = "jdbc:postgresql://"+<%=host%>+":"+<%=port%>+"/"+<%=database%>;
   		de.cimt.talendcomp.connectionpool.BasicConnectionPool <%=cid%> = new de.cimt.talendcomp.connectionpool.BasicConnectionPool(connectionString_<%=cid%>, <%=user%>, <%=password%>);
   		de.cimt.talendcomp.connectionpool.BasicConnectionPool.setDebug(<%=debug%>);
+  		<%=cid%>.loadDriver("org.postgresql.Driver");
   		<%=cid%>.setAdditionalProperties(<%=additional_param%>);
   		<%=cid%>.setAutoCommit(<%=autoCommit%>);
   		<%=cid%>.setNumConnectionsPerCheck(<%=num_connections_checked%>);
-  		<%=cid%>.loadDriver("org.postgresql.Driver");
   		<%=cid%>.setJndiName(<%=alias%>);
   		<%=cid%>.setTestOnBorrow(<%=test_on_borrow%>);
   		<%=cid%>.setValidationQuery(<%=validationSql%>);
   		<%=cid%>.setTimeIdleConnectionIsChecked(<%=time_idle_connection_is_checked%>);
   		<%=cid%>.setTimeBetweenChecks(<%=time_between_checks%>);
+  		<%=cid%>.setEnableJMX(<%=enableJMX%>);
 <% 	if (set_initial_size.equals("true")) { %>
   		<%=cid%>.setInitialSize(<%=initial_size%>);
 <% 	} %>
@@ -172,10 +201,7 @@
 	  	// add data source to the global list of data sources
 	  	dataSourceMap_<%=cid%>.put(<%=alias%>, <%=cid%>.getDataSource());
 	  	// for internal usage e.g. to close the pool
-	  	globalMap.put("<%=cid%>_pool",<%=cid%>);
-	  	globalMap.put("db_<%=cid%>", <%=database%>);
-	  	globalMap.put("<%=cid%>_DATABASE", <%=database%>);
-	  	globalMap.put("schema_" + "<%=cid%>",<%=dbschema%>);
+	  	globalMap.put("pool_<%=cid%>",<%=cid%>);
 	} else { // if (<%=cid%> == null)
 		de.cimt.talendcomp.connectionpool.BasicConnectionPool.debug("Use existing pool with alias: " + <%=alias%>);
   	} // if (dsAlreadyExists_<%=cid%> == false)

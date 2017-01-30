@@ -19,8 +19,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.log4j.Level;
@@ -52,9 +52,10 @@ public class BasicConnectionPool {
 	protected String connectionPropertiesStr = null;
 	private static boolean debug = false;
 	private static Map<String, routines.system.TalendDataSource> dsMap = null;
-	private static Map<String, BasicConnectionPool> poolMap = new HashMap<String, BasicConnectionPool>();
+	private static Map<String, BasicConnectionPool> poolMap = new ConcurrentHashMap<String, BasicConnectionPool>();
 	private boolean autoCommit = false;
 	private String jndiName = null;
+	private boolean enableJMX = true;
 	
 	/**
 	 * Constructor with necessary params
@@ -104,10 +105,10 @@ public class BasicConnectionPool {
 	 */
 	public void initializePool() throws Exception {
 		if (this.driver == null) {
-			throw new IllegalStateException("Please use method loadDriver befor setup datasource");
+			throw new IllegalStateException("Please call method loadDriver before setup datasource");
 		}
 		if (this.connectionUrl == null) {
-			throw new IllegalStateException("Please use method setConnectionString befor setup datasource");
+			throw new IllegalStateException("Please use method setConnectionString before setup datasource");
 		}
 		// use org.apache.commons.dbcp2.BasicDataSource
 		this.dataSource = new BasicDataSource();
@@ -120,7 +121,9 @@ public class BasicConnectionPool {
 		this.dataSource.setTimeBetweenEvictionRunsMillis(this.timeBetweenChecks);
 		this.dataSource.setInitialSize(this.initialSize);
 		this.dataSource.setMaxTotal(this.maxTotal);
-		this.dataSource.setJmxName(buildJmxName());
+		if (enableJMX) {
+			this.dataSource.setJmxName(buildJmxName());
+		}
 		//this.dataSource.setMaxIdle(this.maxIdle);
 		if (this.maxWaitForConnection == 0) { 
 			this.maxWaitForConnection = -1;
@@ -204,6 +207,7 @@ public class BasicConnectionPool {
 			throw new IllegalStateException("Connection pool not set up");
 		}
 		this.dataSource.close();
+		poolMap.remove(poolName);
 	}
 
 	public String getPoolName() {
@@ -520,6 +524,16 @@ public class BasicConnectionPool {
 			return "de.cimt.talendcomp.connectionpool:type=BasicConnectionPool,jndiName="  + jndiName.trim().replace(':', '_');
 		} else {
 			return null;
+		}
+	}
+
+	public boolean isEnableJMX() {
+		return enableJMX;
+	}
+
+	public void setEnableJMX(Boolean enableJMX) {
+		if (enableJMX != null) {
+			this.enableJMX = enableJMX.booleanValue();
 		}
 	}
 	

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <COMPONENT> 
-  <HEADER AUTHOR="cimt AG" COMPATIBILITY="ALL" PLATEFORM="ALL" RELEASE_DATE="20170126" STARTABLE="true" STATUS="PROD" VERSION="2.2" SERIAL=""> 
+  <HEADER AUTHOR="cimt AG" COMPATIBILITY="ALL" PLATEFORM="ALL" RELEASE_DATE="20170130" STARTABLE="true" STATUS="PROD" VERSION="2.3" SERIAL=""> 
     <SIGNATURE/> 
   </HEADER>  
   <FAMILIES> 
@@ -94,20 +94,22 @@
     <PARAMETER NAME="INIT_SQL" FIELD="TEXT" NUM_ROW="100" REQUIRED="true" SHOW_IF="(MODE == 'CREATE') and (SET_INIT_SQL == 'true')"> 
       <DEFAULT/> 
     </PARAMETER>  
+    <PARAMETER NAME="ENABLE_JMX" FIELD="CHECK" NUM_ROW="110" SHOW_IF="MODE == 'CREATE'"> 
+      <DEFAULT>true</DEFAULT> 
+    </PARAMETER>  
     <PARAMETER NAME="DEBUG" FIELD="CHECK" NUM_ROW="200" SHOW_IF="MODE == 'CREATE'"/>  
-    <PARAMETER NAME="RELEASE_LABEL_20170126" FIELD="LABEL" COLOR="0;0;0" NUM_ROW="900">
-      <DEFAULT>Release: 2.2 build at: 20170126</DEFAULT>
+    <PARAMETER NAME="RELEASE_LABEL_20170130" FIELD="LABEL" COLOR="0;0;0" NUM_ROW="900">
+      <DEFAULT>Release: 2.3 build at: 20170130</DEFAULT>
     </PARAMETER>
   </ADVANCED_PARAMETERS>  
   <CODEGENERATION> 
     <IMPORTS> 
-      <IMPORT NAME="cimt-talendcomp-connectionpool" MODULE="cimt-talendcomp-connectionpool-2.2.jar" REQUIRED="true"/>
+      <IMPORT NAME="cimt-talendcomp-connectionpool" MODULE="cimt-talendcomp-connectionpool-2.3.jar" REQUIRED="true"/>
       <IMPORT NAME="commons-dbcp2" MODULE="commons-dbcp2-2.1.1.jar" REQUIRED="true"/>
       <IMPORT NAME="commons-pool2" MODULE="commons-pool2-2.4.2.jar" REQUIRED="true"/>
       <IMPORT NAME="commons-logging" MODULE="commons-logging-1.2.jar" REQUIRED="true"/>
     </IMPORTS> 
   </CODEGENERATION>  
   <RETURNS> 
-    <RETURN NAME="DATABASE" TYPE="id_String" AVAILABILITY="AFTER"/> 
   </RETURNS>
 </COMPONENT>
