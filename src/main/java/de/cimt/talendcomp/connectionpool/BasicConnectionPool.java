@@ -47,7 +47,6 @@ public class BasicConnectionPool {
 	private Collection<String> initSQL;
 	private BasicDataSource dataSource = null;
 	protected PooledTalendDataSource pooledTalendDateSource = null;
-	protected String poolName = null;
 	protected String validationQuery = null;
 	protected String connectionPropertiesStr = null;
 	private static boolean debug = false;
@@ -207,15 +206,7 @@ public class BasicConnectionPool {
 			throw new IllegalStateException("Connection pool not set up");
 		}
 		this.dataSource.close();
-		poolMap.remove(poolName);
-	}
-
-	public String getPoolName() {
-		return poolName;
-	}
-
-	public void setPoolName(String poolName) {
-		this.poolName = poolName;
+		poolMap.remove(jndiName);
 	}
 
 	public boolean getTestOnBorrow() {
@@ -517,6 +508,10 @@ public class BasicConnectionPool {
 		} else {
 			this.jndiName = null;
 		}
+	}
+	
+	public String getJndiName() {
+		return jndiName;
 	}
 	
 	public String buildJmxName() {
