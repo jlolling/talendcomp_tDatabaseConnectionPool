@@ -57,6 +57,7 @@
 			sharedConnName = "null";
 		}
 		if (useAlias && connAlias != null) { %>
+	boolean <%=cid%>_got_conn_from_tp = false;
 	{
 		// try to get a shared connection from request context
 		java.sql.Connection sharedConnection = null;
@@ -101,6 +102,12 @@
 				}
 			}				
 		} // if (dsAlias != null
+	} else if (<%=cid%>_got_conn_from_tp == false) {
+		// keep connection for current thread
+		String sharedConnectionName = <%=sharedConnName%>;
+		if (sharedConnectionName != null && sharedConnectionName.trim().isEmpty() == false) {
+			de.cimt.talendcomp.connectionpool.ThreadLocalConnectionCache.set(sharedConnectionName, (java.sql.Connection) globalMap.get("conn_<%=connectionToFix%>"));
+		}
 	} // if (globalMap.get("conn_
 <%    } else { %>
 	// connection <%=connectionToFix%> was not configured to use a data source
