@@ -40,7 +40,7 @@ public class BasicConnectionPool {
 	protected Integer timeBetweenChecks = 60000;
 	protected Integer initialSize = 0;
 	protected Integer maxTotal = -1;
-	//private Integer maxIdle = 5;
+	protected Integer maxIdle = -1;
 	protected Integer maxWaitForConnection = 0;
 	protected Integer numConnectionsPerCheck = 5;
 	protected String driver = null;
@@ -120,6 +120,7 @@ public class BasicConnectionPool {
 		this.dataSource.setTimeBetweenEvictionRunsMillis(this.timeBetweenChecks);
 		this.dataSource.setInitialSize(this.initialSize);
 		this.dataSource.setMaxTotal(this.maxTotal);
+		this.dataSource.setMaxIdle(this.maxIdle);
 		if (enableJMX) {
 			this.dataSource.setJmxName(buildJmxName());
 		}
@@ -279,6 +280,10 @@ public class BasicConnectionPool {
 		return maxTotal;
 	}
 
+	public Integer getMaxIdle() {
+		return maxIdle;
+	}
+
 	/**
 	 * max number of connections in pool<br>
 	 * <br>
@@ -291,6 +296,7 @@ public class BasicConnectionPool {
 			throw new IllegalArgumentException("maxTotal can not be null");
 		} else {
 			this.maxTotal = maxTotal;
+			this.maxIdle = maxTotal; // max idle should be the same value as max total
 		}
 
 	}
