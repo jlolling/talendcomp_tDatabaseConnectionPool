@@ -158,7 +158,7 @@
 	  	String connectionString_<%=cid%> = "jdbc:mysql://"+<%=host%>+":"+<%=port%>+"/"+<%=database%>;
   		de.cimt.talendcomp.connectionpool.BasicConnectionPool <%=cid%> = new de.cimt.talendcomp.connectionpool.BasicConnectionPool(connectionString_<%=cid%>, <%=user%>, <%=password%>);
   		de.cimt.talendcomp.connectionpool.BasicConnectionPool.setDebug(<%=debug%>);
-  		<%=cid%>.loadDriver("org.postgresql.Driver");
+  		<%=cid%>.loadDriver("org.gjt.mm.mysql.Driver");
   		<%=cid%>.setAdditionalProperties(<%=additional_param%>);
   		<%=cid%>.setAutoCommit(<%=autoCommit%>);
   		<%=cid%>.setNumConnectionsPerCheck(<%=num_connections_checked%>);
