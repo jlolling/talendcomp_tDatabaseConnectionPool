@@ -37,10 +37,10 @@
 		</dependency>
 
 		<dependency>
-			<groupId>de.cimt.talendcomp.test</groupId>
-			<artifactId>talend-fake-job</artifactId>
-			<version>0.9</version>
-			<scope>provided</scope>
+			<groupId>de.cimt.talend.mock</groupId>
+			<artifactId>talend-job-mock</artifactId>
+			<version>1.0</version>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>
