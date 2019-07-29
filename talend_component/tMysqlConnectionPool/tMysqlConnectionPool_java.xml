@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <COMPONENT> 
-  <HEADER AUTHOR="cimt AG" COMPATIBILITY="ALL" PLATEFORM="ALL" RELEASE_DATE="20171213" STARTABLE="true" STATUS="PROD" VERSION="2.6" SERIAL=""> 
+  <HEADER AUTHOR="cimt AG" COMPATIBILITY="ALL" PLATEFORM="ALL" RELEASE_DATE="20190729" STARTABLE="true" STATUS="PROD" VERSION="2.7" SERIAL=""> 
     <SIGNATURE/> 
   </HEADER>  
   <FAMILIES> 
@@ -95,13 +95,13 @@
       <DEFAULT>true</DEFAULT> 
     </PARAMETER>  
     <PARAMETER NAME="DEBUG" FIELD="CHECK" NUM_ROW="20" SHOW_IF="MODE == 'CREATE'"/>  
-    <PARAMETER NAME="RELEASE_LABEL_20171213" FIELD="LABEL" COLOR="0;0;0" NUM_ROW="900">
-      <DEFAULT>Release: 2.6 build at: 20171213</DEFAULT>
+    <PARAMETER NAME="RELEASE_LABEL_20190729" FIELD="LABEL" COLOR="0;0;0" NUM_ROW="900">
+      <DEFAULT>Release: 2.7 build at: 20190729</DEFAULT>
     </PARAMETER>
   </ADVANCED_PARAMETERS>  
   <CODEGENERATION> 
     <IMPORTS> 
-      <IMPORT NAME="cimt-talendcomp-connectionpool" MODULE="cimt-talendcomp-connectionpool-2.6.jar" REQUIRED="true"/>
+      <IMPORT NAME="cimt-talendcomp-connectionpool" MODULE="cimt-talendcomp-connectionpool-2.7.jar" REQUIRED="true"/>
       <IMPORT NAME="commons-dbcp2" MODULE="commons-dbcp2-2.1.1.jar" REQUIRED="true"/>
       <IMPORT NAME="commons-pool2" MODULE="commons-pool2-2.4.2.jar" REQUIRED="true"/>
       <IMPORT NAME="commons-logging" MODULE="commons-logging-1.2.jar" REQUIRED="true"/>

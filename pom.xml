@@ -37,13 +37,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>de.cimt.talend.mock</groupId>
-			<artifactId>talend-job-mock</artifactId>
-			<version>1.0</version>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
 		    <groupId>org.postgresql</groupId>
 		    <artifactId>postgresql</artifactId>
 		    <version>9.4.1212.jre7</version>
