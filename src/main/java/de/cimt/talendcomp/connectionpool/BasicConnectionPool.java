@@ -146,9 +146,11 @@ public class BasicConnectionPool {
 			Connection testConn = dataSource.getConnection();
 			if (testConn == null) {
 				throw new Exception("No initial data source available");
-			} else if (isDebug()) {
-				debug("Initial check connection pool: number active: " + dataSource.getNumActive() + "number idle: " + dataSource.getNumIdle());
+			} else {
 				testConn.close();
+				if (isDebug()) {
+					debug("Initial check connection pool: number active: " + dataSource.getNumActive() + "number idle: " + dataSource.getNumIdle());
+				}
 			}
 		} catch (Exception e) {
 			String message = "Test pool failed. URL=" + this.connectionUrl + " USER=" + this.user + ". Error message=" + e.getMessage();
