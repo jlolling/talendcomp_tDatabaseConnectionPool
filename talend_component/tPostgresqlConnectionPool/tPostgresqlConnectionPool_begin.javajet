@@ -46,7 +46,7 @@
 	boolean debug = "true".equals(ElementParameterParser.getValue(node, "__DEBUG__"));
 	boolean autoCommit = "true".equals(ElementParameterParser.getValue(node, "__AUTO_COMMIT__"));
 	boolean reusePool = "true".equals(ElementParameterParser.getValue(node, "__REUSE_EXISTING_POOL__"));
-    boolean log4jEnabled = "true".equals(org.talend.core.model.process.ElementParameterParser.getValue(node.getProcess(), "__LOG4J_ACTIVATE__")) && 
+   boolean log4jEnabled = "true".equals(org.talend.core.model.process.ElementParameterParser.getValue(node.getProcess(), "__LOG4J_ACTIVATE__")) && 
    							"JOBLET".equals(node.getComponent().getComponentType().toString()) == false;
 %>
 
@@ -58,6 +58,7 @@
 		INode connectionNode = NodeUtil.getNodeByUniqueName(node.getProcess(), connectionToFix);
 		boolean useAlias = "true".equals(ElementParameterParser.getValue(connectionNode, "__SPECIFY_DATASOURCE_ALIAS__")); 
 		String connAlias = ElementParameterParser.getValue(connectionNode, "__DATASOURCE_ALIAS__"); 
+		String connSchema = ElementParameterParser.getValue(connectionNode, "__SCHEMA_DB__"); 
 		boolean useAutoCommit = "true".equals(ElementParameterParser.getValue(connectionNode, "__AUTO_COMMIT__")); 
 		String sharedConnName = ElementParameterParser.getValue(node, "__SHARED_CONNECTION_NAME__");
 		if (sharedConnName == null || sharedConnName.trim().isEmpty()) {
@@ -80,15 +81,16 @@
 			}
 			// make the connection available for the job
 			globalMap.put("conn_<%=connectionToFix%>", sharedConnection);
+			globalMap.put("schema_<%=connectionToFix%>", <%=connSchema%>);
 			<%=cid%>_got_conn_from_tp = true;
 		}
 	}
 	if (globalMap.get("conn_<%=connectionToFix%>") == null) {
-		// the bug TDI-36765 still happens, the connection has done nothing
+		// the bug TDI-36765 still happens, the connection has done nothing or even better the tPostgresqlConnection component is simply not used.
 		// let us do it.
 		String dsAlias = <%=connAlias%>;
 		if (dsAlias != null && dsAlias.trim().isEmpty() == false) {
-		    @SuppressWarnings("unchecked")
+		   @SuppressWarnings("unchecked")
 			java.util.Map<String, routines.system.TalendDataSource> dataSources = (java.util.Map<String, routines.system.TalendDataSource>) globalMap.get(KEY_DB_DATASOURCES);
 			if (dataSources != null) {
 				if (dataSources.get(dsAlias) != null) {
@@ -99,6 +101,7 @@
 						connFromPool.setAutoCommit(<%=useAutoCommit%>);
 						// let the other components referencing this connection really use this connection! 
 						globalMap.put("conn_<%=connectionToFix%>", connFromPool);
+						globalMap.put("schema_<%=connectionToFix%>", <%=connSchema%>);
 						// keep connection for current thread
 						String sharedConnectionName = <%=sharedConnName%>;
 						if (sharedConnectionName != null && sharedConnectionName.trim().isEmpty() == false) {
