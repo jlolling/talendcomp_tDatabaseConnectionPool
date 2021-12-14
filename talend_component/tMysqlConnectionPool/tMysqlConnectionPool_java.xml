@@ -101,10 +101,10 @@
   </ADVANCED_PARAMETERS>  
   <CODEGENERATION> 
     <IMPORTS> 
-      <IMPORT NAME="cimt-talendcomp-connectionpool" MODULE="cimt-talendcomp-connectionpool-2.8.jar" REQUIRED="true"/>
-      <IMPORT NAME="commons-dbcp2" MODULE="commons-dbcp2-2.1.1.jar" REQUIRED="true"/>
-      <IMPORT NAME="commons-pool2" MODULE="commons-pool2-2.4.2.jar" REQUIRED="true"/>
-      <IMPORT NAME="commons-logging" MODULE="commons-logging-1.2.jar" REQUIRED="true"/>
+      <IMPORT NAME="cimt-talendcomp-connectionpool" MODULE="cimt-talendcomp-connectionpool-2.8.jar" MVN="mvn:org.talend.libraries/cimt-talendcomp-connectionpool-2.8/6.0.0-SNAPSHOT" REQUIRED="true"/>
+      <IMPORT NAME="commons-dbcp2" MODULE="commons-dbcp2-2.1.1.jar" MVN="mvn:org.talend.libraries/commons-dbcp2-2.1.1/6.0.0-SNAPSHOT" REQUIRED="true"/>
+      <IMPORT NAME="commons-pool2" MODULE="commons-pool2-2.4.2.jar" MVN="mvn:org.talend.libraries/commons-pool2-2.4.2/6.0.0-SNAPSHOT" REQUIRED="true"/>
+      <IMPORT NAME="commons-logging" MODULE="commons-logging-1.2.jar" MVN="mvn:org.talend.libraries/commons-logging-1.2/6.0.0-SNAPSHOT" REQUIRED="true"/>
     </IMPORTS> 
   </CODEGENERATION>  
   <RETURNS/>

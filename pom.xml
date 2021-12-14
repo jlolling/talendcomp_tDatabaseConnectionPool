@@ -23,13 +23,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.17</version>
-			<scope>provided</scope>
-		</dependency>
-
-		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.11</version>
@@ -57,7 +50,12 @@
 			<plugin>
 				<groupId>de.cimt.talendcomp</groupId>
 				<artifactId>cimt-talendcomp-maven-plugin</artifactId>
-				<version>1.8</version>
+				<version>2.1</version>
+				<configuration>
+					<copyFromSourceBaseDir>${project.basedir}/talend_component</copyFromSourceBaseDir>
+					<componentBaseDir>${project.basedir}/talend_component</componentBaseDir>
+					<studioUserComponentFolder>${custom_component_folder}</studioUserComponentFolder>
+				</configuration>
 				<executions>
 					<execution>
 						<id>tPostgresqlConnectionPool</id>
@@ -84,6 +82,16 @@
 						<phase>package</phase>
 						<configuration>
 							<componentName>tOracleConnectionPool</componentName>
+						</configuration>
+						<goals>
+							<goal>component</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>tDB2ConnectionPool</id>
+						<phase>package</phase>
+						<configuration>
+							<componentName>tDB2ConnectionPool</componentName>
 						</configuration>
 						<goals>
 							<goal>component</goal>
