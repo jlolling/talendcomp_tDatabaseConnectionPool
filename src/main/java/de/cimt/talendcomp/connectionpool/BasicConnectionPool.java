@@ -23,14 +23,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.dbcp2.BasicDataSource;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 
 import routines.system.TalendDataSource;
 
 public class BasicConnectionPool {
 
-	protected static Logger logger = null;
 	protected String user;
 	protected String pass;
 	protected String connectionUrl = null;
@@ -49,7 +46,6 @@ public class BasicConnectionPool {
 	protected PooledTalendDataSource pooledTalendDateSource = null;
 	protected String validationQuery = null;
 	protected String connectionPropertiesStr = null;
-	private static boolean debug = false;
 	private static Map<String, routines.system.TalendDataSource> dsMap = null;
 	private static Map<String, BasicConnectionPool> poolMap = new ConcurrentHashMap<String, BasicConnectionPool>();
 	private boolean autoCommit = false;
@@ -136,8 +132,8 @@ public class BasicConnectionPool {
 		}
 		this.dataSource.setDefaultAutoCommit(autoCommit);
 		this.dataSource.setLifo(false);
-		this.dataSource.setLogAbandoned(isDebug());
-		this.dataSource.setLogExpiredConnections(isDebug());
+		this.dataSource.setLogAbandoned(false);
+		this.dataSource.setLogExpiredConnections(false);
 		if (connectionPropertiesStr != null) {
 			this.dataSource.setConnectionProperties(connectionPropertiesStr);
 		}
@@ -148,9 +144,7 @@ public class BasicConnectionPool {
 				throw new Exception("No initial data source available");
 			} else {
 				testConn.close();
-				if (isDebug()) {
-					debug("Initial check connection pool: number active: " + dataSource.getNumActive() + "number idle: " + dataSource.getNumIdle());
-				}
+				debug("Initial check connection pool: number active: " + dataSource.getNumActive() + "number idle: " + dataSource.getNumIdle());
 			}
 		} catch (Exception e) {
 			String message = "Test pool failed. URL=" + this.connectionUrl + " USER=" + this.user + ". Error message=" + e.getMessage();
@@ -181,8 +175,6 @@ public class BasicConnectionPool {
 				throw new IllegalStateException("Connection pool not set up");
 			}
 			pooledTalendDateSource = new PooledTalendDataSource(dataSource);
-			pooledTalendDateSource.setDebug(isDebug());
-			PooledTalendDataSource.setLogger(logger);
 		}
 		return pooledTalendDateSource;
 	}
@@ -378,49 +370,16 @@ public class BasicConnectionPool {
 		}
 	}
 
-	public static boolean isDebug() {
-		if (logger != null) {
-			return logger.getLevel().equals(Level.DEBUG);
-		} else {
-			return debug;
-		}
-	}
-
-	public static void setDebug(boolean debug) {
-		BasicConnectionPool.debug = debug;
-		if (logger != null) {
-			if (debug) {
-				logger.setLevel(Level.DEBUG);
-			} else {
-				logger.setLevel(Level.INFO);
-			}
-		}
-	}
-
 	public static void info(String message) {
-		if (logger != null) {
-			logger.info(message);
-		} else {
-			System.out.println(Thread.currentThread().getName() + ": INFO: " + message);
-		}
+		System.out.println(Thread.currentThread().getName() + ": INFO: " + message);
 	}
 	
 	public static void warn(String message) {
-		if (logger != null) {
-			logger.warn(message);
-		} else {
-			System.out.println(Thread.currentThread().getName() + ": WARN: " + message);
-		}
+		System.out.println(Thread.currentThread().getName() + ": WARN: " + message);
 	}
 
 	public static void debug(String message) {
-		if (isDebug()) {
-			if (logger != null) {
-				logger.debug(message);
-			} else {
-				System.out.println(Thread.currentThread().getName() + ": DEBUG: " + message);
-			}
-		}
+		System.out.println(Thread.currentThread().getName() + ": DEBUG: " + message);
 	}
 
 	public static void error(String message) {
@@ -431,17 +390,9 @@ public class BasicConnectionPool {
 		if (t != null && (message == null || message.trim().isEmpty())) {
 			message = t.getMessage();
 		}
-		if (logger != null) {
-			if (t != null) {
-				logger.error(message, t);
-			} else {
-				logger.error(message);
-			}
-		} else {
-			System.err.println(Thread.currentThread().getName() + ": ERROR: " + message);
-			if (t != null) {
-				t.printStackTrace(System.err);
-			}
+		System.err.println(Thread.currentThread().getName() + ": ERROR: " + message);
+		if (t != null) {
+			t.printStackTrace(System.err);
 		}
 	}
 
@@ -467,10 +418,6 @@ public class BasicConnectionPool {
 
 	public void setAutoCommit(boolean autoCommit) {
 		this.autoCommit = autoCommit;
-	}
-	
-	public static void setLogger(Logger logger) {
-		BasicConnectionPool.logger = logger;
 	}
 
 	public static void convertToPooledDataSources(Map<String, Object> globalMap, String dataSourceKey) {

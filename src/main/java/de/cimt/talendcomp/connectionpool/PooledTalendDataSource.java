@@ -21,14 +21,11 @@ import java.sql.SQLException;
 import javax.sql.DataSource;
 
 import org.apache.commons.dbcp2.BasicDataSource;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 
 import routines.system.TalendDataSource;
 
 public class PooledTalendDataSource extends TalendDataSource {
 
-	private static Logger logger = null;
 	private DataSource ds = null;
 	private boolean debug = false;
 	
@@ -75,39 +72,12 @@ public class PooledTalendDataSource extends TalendDataSource {
 		// do nothing
 	}
 	
-	public boolean isDebug() {
-		if (logger != null) {
-			return logger.getLevel().equals(Level.DEBUG);
-		} else {
-			return debug;
-		}
-	}
-
-	public void setDebug(boolean debug) {
-		this.debug = debug;
-		if (logger != null) {
-			if (debug) {
-				logger.setLevel(Level.DEBUG);
-			} else {
-				logger.setLevel(Level.INFO);
-			}
-		}
-	}
-
 	public void info(String message) {
-		if (logger != null) {
-			logger.info(message);
-		} else {
-			System.out.println(Thread.currentThread().getName() + ": INFO: " + message);
-		}
+		System.out.println(Thread.currentThread().getName() + ": INFO: " + message);
 	}
 	
 	public void debug(String message) {
-		if (logger != null) {
-			logger.debug(message);
-		} else {
-			System.out.println(Thread.currentThread().getName() + ": DEBUG: " + message);
-		}
+		System.out.println(Thread.currentThread().getName() + ": DEBUG: " + message);
 	}
 
 	public void error(String message) {
@@ -118,26 +88,10 @@ public class PooledTalendDataSource extends TalendDataSource {
 		if (t != null && (message == null || message.trim().isEmpty())) {
 			message = t.getMessage();
 		}
-		if (logger != null) {
-			if (t != null) {
-				logger.error(message, t);
-			} else {
-				logger.error(message);
-			}
-		} else {
-			System.err.println(Thread.currentThread().getName() + ": ERROR: " + message);
-			if (t != null) {
-				t.printStackTrace(System.err);
-			}
+		System.err.println(Thread.currentThread().getName() + ": ERROR: " + message);
+		if (t != null) {
+			t.printStackTrace(System.err);
 		}
-	}
-
-	public static Logger getLogger() {
-		return logger;
-	}
-
-	public static void setLogger(Logger logger) {
-		PooledTalendDataSource.logger = logger;
 	}
 
 }
