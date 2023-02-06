@@ -35,7 +35,6 @@
 	}
 	String validationSql = ElementParameterParser.getValue(node, "__VALIDATION_SQL__");
 	String creationComponent = ElementParameterParser.getValue(node, "__CONNECTION_POOL__");
-	boolean debug = "true".equals(ElementParameterParser.getValue(node, "__DEBUG__"));
 	boolean enableJMX = "true".equals(ElementParameterParser.getValue(node, "__ENABLE_JMX__"));
 	boolean autoCommit = "true".equals(ElementParameterParser.getValue(node, "__AUTO_COMMIT__"));
 	boolean reusePool = "true".equals(ElementParameterParser.getValue(node, "__REUSE_EXISTING_POOL__"));
@@ -157,7 +156,6 @@
   		de.cimt.talendcomp.connectionpool.BasicConnectionPool.info("Create new pool with alias: " + <%=alias%>);
 	  	String connectionString_<%=cid%> = "jdbc:mysql://"+<%=host%>+":"+<%=port%>+"/"+<%=database%>;
   		de.cimt.talendcomp.connectionpool.BasicConnectionPool <%=cid%> = new de.cimt.talendcomp.connectionpool.BasicConnectionPool(connectionString_<%=cid%>, <%=user%>, <%=password%>);
-  		de.cimt.talendcomp.connectionpool.BasicConnectionPool.setDebug(<%=debug%>);
   		<%=cid%>.loadDriver("org.gjt.mm.mysql.Driver");
   		<%=cid%>.setAdditionalProperties(<%=additional_param%>);
   		<%=cid%>.setAutoCommit(<%=autoCommit%>);
