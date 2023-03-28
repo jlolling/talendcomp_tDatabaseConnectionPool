@@ -6,4 +6,4 @@ This project contains different components for different database vendors:
 * tOracleConnectionPool
 * tDB2ConnectionPool
 
-All components are available in Talend Exchange: https://exchange.talend.com
+Here the link to the documentation (as example the PostgreSQL edition): [Documentation](https://github.com/jlolling/talendcomp_tDatabaseConnectionPool/blob/master/doc/tPostgresqlConnectionPool.pdf)
