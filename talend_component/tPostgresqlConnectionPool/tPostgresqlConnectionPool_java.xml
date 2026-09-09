@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <COMPONENT> 
-  <HEADER AUTHOR="cimt AG" COMPATIBILITY="ALL" PLATEFORM="ALL" RELEASE_DATE="20211214" STARTABLE="true" STATUS="PROD" VERSION="2.8" SERIAL=""> 
+  <HEADER AUTHOR="cimt AG" COMPATIBILITY="ALL" PLATEFORM="ALL" RELEASE_DATE="20221123" STARTABLE="true" STATUS="PROD" VERSION="2.9" SERIAL=""> 
     <SIGNATURE/> 
   </HEADER>  
   <FAMILIES> 
@@ -100,14 +100,13 @@
     <PARAMETER NAME="ENABLE_JMX" FIELD="CHECK" NUM_ROW="110" SHOW_IF="MODE == 'CREATE'"> 
       <DEFAULT>true</DEFAULT> 
     </PARAMETER>  
-    <PARAMETER NAME="DEBUG" FIELD="CHECK" NUM_ROW="200" SHOW_IF="MODE == 'CREATE'"/>  
-    <PARAMETER NAME="RELEASE_LABEL_20211214" FIELD="LABEL" COLOR="0;0;0" NUM_ROW="900">
-      <DEFAULT>Release: 2.8 build at: 20211214</DEFAULT>
+    <PARAMETER NAME="RELEASE_LABEL_20221123" FIELD="LABEL" COLOR="0;0;0" NUM_ROW="900">
+      <DEFAULT>Release: 2.9 build at: 20221123</DEFAULT>
     </PARAMETER>
   </ADVANCED_PARAMETERS>  
   <CODEGENERATION> 
     <IMPORTS> 
-      <IMPORT NAME="cimt-talendcomp-connectionpool" MODULE="cimt-talendcomp-connectionpool-2.8.jar" MVN="mvn:org.talend.libraries/cimt-talendcomp-connectionpool-2.8/6.0.0-SNAPSHOT" REQUIRED="true"/>
+      <IMPORT NAME="cimt-talendcomp-connectionpool" MODULE="cimt-talendcomp-connectionpool-2.9.jar" MVN="mvn:org.talend.libraries/cimt-talendcomp-connectionpool-2.9/6.0.0-SNAPSHOT" REQUIRED="true"/>
       <IMPORT NAME="commons-dbcp2" MODULE="commons-dbcp2-2.1.1.jar" MVN="mvn:org.talend.libraries/commons-dbcp2-2.1.1/6.0.0-SNAPSHOT" REQUIRED="true"/>
       <IMPORT NAME="commons-pool2" MODULE="commons-pool2-2.4.2.jar" MVN="mvn:org.talend.libraries/commons-pool2-2.4.2/6.0.0-SNAPSHOT" REQUIRED="true"/>
       <IMPORT NAME="commons-logging" MODULE="commons-logging-1.2.jar" MVN="mvn:org.talend.libraries/commons-logging-1.2/6.0.0-SNAPSHOT" REQUIRED="true"/>
