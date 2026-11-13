@@ -1,8 +1,10 @@
 package de.cimt.talendcomp.connectionpool.test;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeNoException;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Hashtable;
 
 import javax.management.ObjectName;
@@ -32,7 +34,13 @@ public class TestThreadLocalConnectionCache {
 	@Test
 	public void testSetGet() throws Exception {
 		System.out.println(Thread.currentThread().getName() + ": start");
-		Connection conn1 = createConnection();
+		Connection conn1 = null;
+		try {
+			conn1 = createConnection();
+		} catch (SQLException e) {
+			// skip the test if the test database is not reachable
+			assumeNoException("Test database not available", e);
+		}
 		ThreadLocalConnectionCache.set("test", conn1);
 		Connection conn2 = ThreadLocalConnectionCache.get("test");
 		if (conn2.isClosed()) {
