@@ -118,7 +118,7 @@
 <%    } else { %>
 	// connection <%=connectionToFix%> was not configured to use a data source
 <%    } %>
-<% } else if ("CLOSE_POOL".equals(mode)) { %>
+<% } else if ("CLOSE".equals(mode)) { %>
 	{
   		de.cimt.talendcomp.connectionpool.BasicConnectionPool pool = (de.cimt.talendcomp.connectionpool.BasicConnectionPool) globalMap.get("pool_<%=creationComponent%>");
   		if (pool != null) {
@@ -126,7 +126,7 @@
 	  		pool.closePool(); // close the entire pool
   		}
 	}
-<% } else if ("CREATE_POOL".equals(mode)) { %> 
+<% } else if ("CREATE".equals(mode)) { %> 
 	boolean dsAlreadyExists_<%=cid%> = false;
     @SuppressWarnings("unchecked")
 	java.util.Map<String, routines.system.TalendDataSource> dsmap_<%=cid%> = (java.util.Map<String, routines.system.TalendDataSource>) globalMap.get(KEY_DB_DATASOURCES);
@@ -210,4 +210,4 @@
 	} else { // if (<%=cid%> == null)
 		de.cimt.talendcomp.connectionpool.BasicConnectionPool.debug("Use existing pool with alias: " + <%=alias%>);
   	} // if (dsAlreadyExists_<%=cid%> == false)
-<% } // if ("CREATE_POOL".equals(mode)) %>
+<% } // if ("CREATE".equals(mode)) %>
